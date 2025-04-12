@@ -32,16 +32,6 @@ public class BetterCounterOffer : MelonMod {
         }
     }
 
-    [HarmonyPatch(typeof(CounterofferInterface), nameof(CounterofferInterface.Open))]
-    static class CounterOfferOpenPatch {
-
-        public static bool Prefix(CounterofferInterface __instance, ref ProductDefinition product, ref int quantity, ref float price, ref MSGConversation _conversation, ref Il2CppSystem.Action<ProductDefinition, int, float> _orderConfirmedCallback) {
-            MelonLogger.Msg($"{product.name} costs {price}");
-            return true;
-        }
-    }
-
-
     [HarmonyPatch(typeof(CounterofferInterface), "UpdateFairPrice")]
     static class CounterOfferUpdateFairPricePatch {
 
