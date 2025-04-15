@@ -2,16 +2,13 @@ using MelonLoader;
 using HarmonyLib;
 using UnityEngine;
 using UnityEngine.UI;
-using System.Collections.Generic;
-using Il2Generic = Il2CppSystem.Collections.Generic;
 using Il2CppScheduleOne;
 using Il2CppScheduleOne.UI.Phone;
 using Il2CppScheduleOne.Product;
 using Il2CppScheduleOne.Economy;
-using Il2CppScheduleOne.GameTime;
-using Il2CppSystem.Collections.Generic;
+using UnityEngine.Events;
 
-[assembly: MelonInfo(typeof(BetterCounterOffer.CounterOfferUi), BuildInfo.Name, BuildInfo.Version, BuildInfo.Author, BuildInfo.DownloadLink)]
+[assembly: MelonInfo(typeof(BetterCounterOffer.CounterOfferUI), BetterCounterOffer.BuildInfo.Name, BetterCounterOffer.BuildInfo.Version, BetterCounterOffer.BuildInfo.Author, BetterCounterOffer.BuildInfo.DownloadLink)]
 [assembly: MelonColor(255, 191, 0, 255)]
 [assembly: MelonGame("TVGS", "Schedule I")]
 
@@ -27,57 +24,12 @@ namespace BetterCounterOffer
         public const string DownloadLink = "";
     }
 
-    public class CounterOfferUi : MelonMod {
+    public class CounterOfferUI : MelonMod {
 
-        static GameObject PlayerRef = null;
+        public static GameObject PlayerRef = null;
+        public static Text successRateText = null;
         static GameObject CounterOfferPopupRef = null;
         static GameObject productSelectorRef = null;
-
-
-        [HarmonyPatch(typeof(CounterOfferProductSelector), nameof(CounterOfferProductSelector.GetMatchingProducts))]
-        static class CounterOfferProductSelectorGetMatchingProductsPatch {
-
-            public static void Postfix(CounterofferInterface __instance, ref Il2Generic.List<ProductDefinition> __result, ref string searchTerm) {
-
-                HashSet<EDrugType> drugTypes = new HashSet<EDrugType>();
-                Il2Generic.List<ProductDefinition> lp = ProductManager.ListedProducts;
-                Il2Generic.List<ProductDefinition> newList = new Il2Generic.List<ProductDefinition>();
-                if (searchTerm.ToLower().Contains("weed")) { drugTypes.Add(EDrugType.Marijuana); }
-
-                if (searchTerm.ToLower().Contains("coke")) { drugTypes.Add(EDrugType.Cocaine); }
-
-                if (searchTerm.ToLower().Contains("meth")) { drugTypes.Add(EDrugType.Methamphetamine); }
-
-                foreach (ProductDefinition p in lp) {
-                    if (drugTypes.Contains(p.DrugType) || p.Name.ToLower().Contains(searchTerm)) {
-                        newList.Add(p);
-                    }
-                }
-
-                __result = newList;
-            }
-        }
-
-        [HarmonyPatch(typeof(CounterofferInterface), nameof(CounterofferInterface.Awake))]
-        static class CounterOfferAwakePatch {
-
-            public static bool Prefix(CounterofferInterface __instance) {
-                MelonLogger.Msg("Counteroffer Waking Up Trying to create field");
-                attemptToCreateField();
-                return true;
-            }
-        }
-
-        [HarmonyPatch(typeof(CounterofferInterface), "UpdateFairPrice")]
-        static class CounterOfferUpdateFairPricePatch {
-
-            public static bool Prefix(CounterofferInterface __instance) {
-                ProductDefinition temp = __instance.selectedProduct;
-                float priceChange = __instance.quantity * temp.Price - __instance.price;
-                __instance.ChangePrice(priceChange);
-                return true;
-            }
-        }
 
         public static (float maxSpend, float dailyAverage) CalculateSpendingLimits(Customer customer) {
             CustomerData customerData = customer.CustomerData;
@@ -148,14 +100,6 @@ namespace BetterCounterOffer
 
                     MelonLogger.Msg("Updating Selector Interface");
                     updateSelectorUi(transform);
-
-                    Transform newComp = transform.Find("OfferInformation/SuccessRate");
-                    GameObject ssRate = transform != null ? transform.gameObject : null;
-                    if (ssRate != null) {
-                        MelonLogger.Msg("Field Created Succesfully");
-                    } else {
-                        MelonLogger.Msg("Field Not Created Succesfully. FUUCKK!!!");
-                    }
                 }
             }
         }
@@ -163,7 +107,6 @@ namespace BetterCounterOffer
         private static void adjustUiElements(Transform parent, string searchStr, float x, float y) {
             Transform fpTransform = parent.Find(searchStr);
             if (fpTransform != null) {
-                MelonLogger.Msg(System.ConsoleColor.DarkGreen, $"{searchStr} Adjusted");
                 RectTransform fpRect = fpTransform.GetComponent<RectTransform>();
                 fpRect.anchoredPosition = new Vector2(x, y);
             } else {
@@ -188,34 +131,61 @@ namespace BetterCounterOffer
                 MelonLogger.Msg(System.ConsoleColor.DarkGreen, $"Selection Adjusted");
                 RectTransform selectorRect = selectorTrans.GetComponent<RectTransform>();
                 selectorRect.anchoredPosition = new Vector2(0f, -250f);
-
-                MelonLogger.Msg(System.ConsoleColor.Cyan, "Attempting to Change SearchInput width");
                 Transform searchTrans = selectorTrans.Find("SearchInput");
                 GameObject SearchInput = searchTrans != null ? searchTrans.gameObject : null;
-                if (SearchInput != null) { 
-                    RectTransform searchRect = SearchInput.GetComponent<RectTransform>();
-                    searchRect.SetWidth(200f);
-                }
+                if (SearchInput != null) {
+                    Transform backgroundImage = searchTrans.Find("Image");
+                    if (backgroundImage != null) {
+                        MelonLogger.Msg(System.ConsoleColor.Cyan, "Attempting to Change Image width");
+                        RectTransform bgRect = backgroundImage.GetComponent<RectTransform>();
+                        bgRect.anchoredPosition = new Vector2(10f, -1);
+                        bgRect.pivot = new Vector2(0, 0.5f);
+                        bgRect.sizeDelta = new Vector2(-90f, 0);
+                    }
 
-                MelonLogger.Msg(System.ConsoleColor.Cyan, "Attempting to Add Filter Button to parent");
-                GameObject filterBtn = new GameObject("FilterButton");
-                filterBtn.transform.SetParent(selectorTrans, false);
-                var buttonText = filterBtn.AddComponent<Text>();
-                buttonText.text = "Filter";
-                buttonText.font = Resources.GetBuiltinResource<Font>("Arial.ttf");
-                buttonText.fontSize = 30;
-                buttonText.color = Color.red;
-                buttonText.alignment = TextAnchor.MiddleCenter;
-                var buttonRect = filterBtn.GetComponent<RectTransform>();
-                buttonRect.sizeDelta = new Vector2(40, 40);
-                buttonRect.anchorMin = new Vector2(1, 1);
-                buttonRect.anchorMax = new Vector2(1, 1);
-                buttonRect.anchoredPosition = new Vector2(-15, -30);
+                    Transform textArea = searchTrans.Find("Text Area");
+                    if (textArea != null) {
+                        MelonLogger.Msg(System.ConsoleColor.Cyan, "Attempting to Change Text Area width");
+                        RectTransform textAreaRect = textArea.GetComponent<RectTransform>();
+                        textAreaRect.anchoredPosition = new Vector2(5f,0);
+                        textAreaRect.pivot = new Vector2(0, 0.5f);
+                        textAreaRect.sizeDelta = new Vector2(-90f, -18f);
+                    }
+
+                    //GameObject SearchInput = searchTrans != null ? searchTrans.gameObject : null;
+                    //RectTransform searchRect = SearchInput.GetComponent<RectTransform>();
+                    //RectTransformExtensions.SetWidth(searchRect,200f);
+                    MelonLogger.Msg(System.ConsoleColor.Cyan, "Attempting to Add Filter Button to parent");
+
+                    GameObject filterGo = new GameObject("FilterButton");
+                    filterGo.transform.SetParent(searchTrans, false);
+                    var buttonText = filterGo.AddComponent<Text>();
+                    buttonText.text = "All";
+                    buttonText.font = Resources.GetBuiltinResource<Font>("Arial.ttf");
+                    buttonText.fontSize = 30;
+                    buttonText.color = Color.gray;
+                    buttonText.alignment = TextAnchor.MiddleCenter;
+                    var buttonRect = filterGo.GetComponent<RectTransform>();
+                    buttonRect.pivot = new Vector2(1, 1);
+                    buttonRect.sizeDelta = new Vector2(60, 40);
+                    buttonRect.anchorMin = new Vector2(1, 1);
+                    buttonRect.anchorMax = new Vector2(1, 1);
+                    buttonRect.anchoredPosition = new Vector2(-15f, -5f);
+
+                    Button filterButton  = filterGo.AddComponent<Button>();
+                    filterButton.onClick.AddListener((UnityAction) handleClick);
+
+                }
 
             } else {
                 MelonLogger.Msg(System.ConsoleColor.Red, "Selection Couldn't be Found");
             }
         }
+
+        static void handleClick() {
+            MelonLogger.Msg("You Clicked Me");
+        }
+
 
         private static void createLabels(Transform parent) {
             Text dupMe = null;
@@ -236,9 +206,6 @@ namespace BetterCounterOffer
             rect.pivot = new Vector2(0.5f, 0.5f);
             rect.sizeDelta = new Vector2(300, 100);
 
-            var bg = inputGO.AddComponent<Image>();
-            bg.color = new Color(1f, 1f, 1f, 1.0f);
-
             // Text
             GameObject maxCashGO = new GameObject("MaxCash");
             maxCashGO.transform.SetParent(inputGO.transform, false);
@@ -256,7 +223,7 @@ namespace BetterCounterOffer
             GameObject successRateGO = new GameObject("SuccessRate");
             successRateGO.transform.SetParent(inputGO.transform, false);
             successRateGO.transform.localPosition = new Vector3(0, -20f, 0);
-            var successRateText = successRateGO.AddComponent<Text>();
+            successRateText = successRateGO.AddComponent<Text>();
             successRateText.text = "100% Success Rate";
             successRateText.font = dupMe != null ? dupMe.font : Resources.GetBuiltinResource<Font>("Arial.ttf");
             successRateText.fontSize = 30;
