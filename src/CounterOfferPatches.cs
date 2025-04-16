@@ -4,15 +4,14 @@ using Il2CppScheduleOne.Product;
 using Il2CppScheduleOne.UI.Phone;
 using Il2Generic = Il2CppSystem.Collections.Generic;
 using Il2CppScheduleOne.Economy;
-using Il2CppScheduleOne.Messaging;
 
 namespace BetterCounterOffer {
 
     [HarmonyPatch(typeof(CounterofferInterface), nameof(CounterofferInterface.Awake))]
     static class CounterOfferAwakePatch {
         public static bool Prefix(CounterofferInterface __instance) {
-            MelonLogger.Msg("Counteroffer Waking Up Trying to create field");
-            CounterOfferUI.attemptToCreateField();
+            MelonLogger.Msg("Waking Up, Lets Modify this UI and make it Better");
+            CounterOfferUI.InitOnWake();
             return true;
         }
     }
@@ -32,7 +31,7 @@ namespace BetterCounterOffer {
     static class CounterOfferInterfaceChangePricePatch {
 
         public static void Postfix(CounterofferInterface __instance) {
-            CounterOfferUI.UpdateTextFields(__instance);
+            CounterOfferUI.UpdateSuccessRate(__instance);
         }
     }
 
@@ -43,7 +42,7 @@ namespace BetterCounterOffer {
             ProductDefinition temp = __instance.selectedProduct;
             float priceChange = __instance.quantity * temp.Price - __instance.price;
             __instance.ChangePrice(priceChange);
-            CounterOfferUI.UpdateTextFields(__instance);
+            CounterOfferUI.UpdateSuccessRate(__instance);
         }
     }
 
@@ -51,23 +50,19 @@ namespace BetterCounterOffer {
     [HarmonyPatch(typeof(CounterofferInterface), nameof(CounterofferInterface.SetProduct))]
     static class CounterOfferInterfaceSetProductPatch {
 
-        public static bool Prefix(CounterofferInterface __instance, ref ProductDefinition newProduct) {
-            float priceChange = __instance.quantity * newProduct.Price - __instance.price;
+        public static void Postfix(CounterofferInterface __instance) {
+            float priceChange = (__instance.quantity * __instance.selectedProduct.Price) - __instance.price;
             __instance.ChangePrice(priceChange);
-            CounterOfferUI.UpdateTextFields(__instance);
-            return true;
+            CounterOfferUI.UpdateSuccessRate(__instance);
         }
     }
 
     [HarmonyPatch(typeof(CounterOfferProductSelector), nameof(CounterOfferProductSelector.Open))]
     static class CounterOfferProductSelectorOpenPatch {
         public static void Postfix(CounterOfferProductSelector __instance) {
-            MelonLogger.Msg(System.ConsoleColor.Green, "Getting the selector interface");
-            if (CounterOfferUI.selectorInterface != null) {
-                MelonLogger.Msg("Is Alive! has been captured by my hacking");
-            } else {
+            if (CounterOfferUI.selectorInterface == null) {
+                MelonLogger.Msg(System.ConsoleColor.Magenta,"Attempting to caputre ProductSelector interface");
                 CounterOfferUI.selectorInterface = __instance;
-                MelonLogger.Msg($"{__instance.gameObject.name} has been captured by my hacking");
             }
         }
     }

@@ -1,5 +1,4 @@
 using MelonLoader;
-using HarmonyLib;
 using UnityEngine;
 using UnityEngine.UI;
 using Il2Generic = Il2CppSystem.Collections.Generic;
@@ -8,7 +7,6 @@ using Il2CppScheduleOne.UI.Phone;
 using Il2CppScheduleOne.Product;
 using Il2CppScheduleOne.Economy;
 using UnityEngine.Events;
-using Il2CppFunly.SkyStudio;
 using Il2CppScheduleOne.GameTime;
 using Il2CppScheduleOne.UI.Handover;
 
@@ -19,10 +17,10 @@ using Il2CppScheduleOne.UI.Handover;
 namespace BetterCounterOffer {
     public static class BuildInfo {
         public const string Name = "Better Counter Offer UI";
-        public const string Description = "A mod that improves the Counter Offer Interface";
+        public const string Description = "A mod that improves the Counter Offer UI";
         public const string Author = "OverweightUnicorn";
         public const string Company = "UnicornsCanMod";
-        public const string Version = "1.1.0";
+        public const string Version = "2.0.0";
         public const string DownloadLink = "";
     }
 
@@ -66,14 +64,6 @@ namespace BetterCounterOffer {
             SetSuccessRateText(successChance);
         }
 
-        public static float CalculateSpendingLimits(Customer customer) {
-            CustomerData customerData = customer.CustomerData;
-            float adjustedWeeklySpend = customerData.GetAdjustedWeeklySpend(customer.NPC.RelationData.RelationDelta / 5f);
-            var orderDays = customerData.GetOrderDays(customer.CurrentAddiction, customer.NPC.RelationData.RelationDelta / 5f);
-            float maxSpend = (adjustedWeeklySpend / orderDays.Count) * 3f;
-            return maxSpend;
-        }
-
         public static void SetSuccessRateText(float success) {
             if (successRateText == null) {
                 return;
@@ -106,24 +96,34 @@ namespace BetterCounterOffer {
             }
         }
 
-        public static void UpdateTextFields(CounterofferInterface instance) {
-            if (instance == null) {
-                MelonLogger.Msg(System.ConsoleColor.Red, "CounterofferInterface Instance was Null!!");
-                return;
+        private static void handleClick() {
+            float currTime = Time.time;
+            if (currTime - prevTime > 1) {
+                if (displayAll) {
+                    displayAll = false;
+                } else {
+                    displayAll = true;
+                }
+
+                // Update button color after display
+                ToggleButton();
+
+                if (selectorInterface != null) {
+                    selectorInterface.RebuildResultsList();
+                }
+                prevTime = currTime;
             }
-
-            if (successRateText == null) {
-                MelonLogger.Msg(System.ConsoleColor.Red, "successRateText Instance was Null!!");
-                return;
-            }
-
-            MelonLogger.Msg(System.ConsoleColor.Green, "Updating Text Fields");
-            float probability = CalculateSuccessProbability(instance.conversation.sender.GetComponent<Customer>(), instance.selectedProduct, instance.quantity, instance.price);
-            SetSuccessRateText(probability);
-
         }
 
-        public static float CalculateSuccessProbability(Customer customer,ProductDefinition product, int quantity, float price) {
+        public static float CalculateSpendingLimits(Customer customer) {
+            CustomerData customerData = customer.CustomerData;
+            float adjustedWeeklySpend = customerData.GetAdjustedWeeklySpend(customer.NPC.RelationData.RelationDelta / 5f);
+            var orderDays = customerData.GetOrderDays(customer.CurrentAddiction, customer.NPC.RelationData.RelationDelta / 5f);
+            float maxSpend = (adjustedWeeklySpend / orderDays.Count) * 3f;
+            return maxSpend;
+        }
+
+        public static float CalculateSuccessProbability(Customer customer, ProductDefinition product, int quantity, float price) {
             float adjustedWeeklySpend = customer.customerData.GetAdjustedWeeklySpend(customer.NPC.RelationData.RelationDelta / 5f);
             Il2Generic.List<EDay> orderDays = customer.customerData.GetOrderDays(customer.CurrentAddiction, customer.NPC.RelationData.RelationDelta / 5f);
             float num = adjustedWeeklySpend / orderDays.Count;
@@ -173,7 +173,23 @@ namespace BetterCounterOffer {
             return Mathf.Clamp(probability, 0f, 1f);
         }
 
-        public static void attemptToCreateField() {
+        public static void UpdateSuccessRate(CounterofferInterface instance) {
+            if (instance == null) {
+                MelonLogger.Msg(System.ConsoleColor.Red, "CounterofferInterface Instance was Null!!");
+                return;
+            }
+
+            if (successRateText == null) {
+                MelonLogger.Msg(System.ConsoleColor.Red, "successRateText Instance was Null!!");
+                return;
+            }
+
+            float probability = CalculateSuccessProbability(instance.conversation.sender.GetComponent<Customer>(), instance.selectedProduct, instance.quantity, instance.price);
+            SetSuccessRateText(probability);
+
+        }
+
+        public static void InitOnWake() {
             GameObject handOverScreen = GameObject.Find("UI/HandoverScreen");
             if (handOverScreen != null) { 
                 HandoverScreen hands = handOverScreen.GetComponent<HandoverScreen>();
@@ -189,20 +205,14 @@ namespace BetterCounterOffer {
                 Transform transform = PlayerRef.transform.Find("CameraContainer/Camera/OverlayCamera/GameplayMenu/Phone/phone/AppsCanvas/Messages/Container/CounterofferInterface/Shade/Content");
                 GameObject popupContent = transform != null ? transform.gameObject : null;
                 if (popupContent != null) {
-                    MelonLogger.Msg("CounterOffer container Found");
+                    MelonLogger.Msg(System.ConsoleColor.Magenta,"CounterOffer Container Found Lets Make it Better");
 
                     // Make pop-up bigger to support the new fields
                     RectTransform CoPopupRect = transform.GetComponent<RectTransform>();
                     CoPopupRect.sizeDelta = new Vector2(-160f, -90f);
-
-                    MelonLogger.Msg("Attempting to shift components");
                     shiftOfferElements(transform);
-
-                    MelonLogger.Msg("Attempting to make searchbar");
                     createLabels(transform);
-
-                    MelonLogger.Msg("Updating Selector Interface");
-                    updateSelectorUi(transform);
+                    UpdateSelectorUI(transform);
                 }
             }
         }
@@ -228,96 +238,82 @@ namespace BetterCounterOffer {
             adjustUiElements(parent, "Selection", 0f, -250f);
         }
 
-        private static void updateSelectorUi(Transform parent) {
+        private static void UpdateSelectorUI(Transform parent) {
             Transform selectorTrans = parent.Find("Selection");
             if (selectorTrans != null) {
                 MelonLogger.Msg(System.ConsoleColor.DarkGreen, $"Selection Adjusted");
                 selectorInterface = selectorTrans.GetComponent<CounterOfferProductSelector>();
-
                 RectTransform selectorRect = selectorTrans.GetComponent<RectTransform>();
                 selectorRect.anchoredPosition = new Vector2(0f, -250f);
-                Transform searchTrans = selectorTrans.Find("SearchInput");
-                GameObject SearchInput = searchTrans != null ? searchTrans.gameObject : null;
-                if (SearchInput != null) {
-                    InputField searchField = SearchInput.GetComponent<InputField>();
-                    Selectable.Transition hover = searchField.transition;
-                    searchField.transition = Selectable.Transition.None;
-                    Transform backgroundImage = searchTrans.Find("Image");
-                    if (backgroundImage != null) {
-                        MelonLogger.Msg(System.ConsoleColor.Cyan, "Attempting to Change Image width");
-                        RectTransform bgRect = backgroundImage.GetComponent<RectTransform>();
-                        bgRect.anchoredPosition = new Vector2(10f, -1);
-                        bgRect.pivot = new Vector2(0, 0.5f);
-                        bgRect.sizeDelta = new Vector2(-90f, 0);
-                    }
 
-                    Transform textArea = searchTrans.Find("Text Area");
-                    if (textArea != null) {
-                        MelonLogger.Msg(System.ConsoleColor.Cyan, "Attempting to Change Text Area width");
-                        RectTransform textAreaRect = textArea.GetComponent<RectTransform>();
-                        textAreaRect.anchoredPosition = new Vector2(5f, 0);
-                        textAreaRect.pivot = new Vector2(0, 0.5f);
-                        textAreaRect.sizeDelta = new Vector2(-90f, -18f);
-                    }
-
-                    MelonLogger.Msg(System.ConsoleColor.Cyan, "Attempting to Add Filter Button to parent");
-
-                    // Create a GameObject for the button
-                    GameObject filterGo = new GameObject("FilterButton");
-                    filterGo.transform.SetParent(selectorTrans, false);
-                    Button filterBtn = filterGo.AddComponent<Button>();
-                    btnBg = filterGo.AddComponent<Image>();
-                    btnBg.color = disabledBg;
-                    RectTransform filterBtnRect = filterBtn.GetComponent<RectTransform>();
-                    filterBtnRect.anchoredPosition = new Vector2(140, 202.5f);
-                    filterBtnRect.sizeDelta = new Vector2(60, 40);
-                    filterBtnRect.pivot = new Vector2(0.5f, 0.5f);
-
-                    filterBtn.onClick.AddListener((UnityAction)handleClick);
-
-                    // Create a GameObject for the Button Text
-                    // Text and Image componenets cannot be added to the same gameobject
-                    GameObject filterTextGo = new GameObject("FilterText");
-                    filterTextGo.transform.SetParent(filterGo.transform, false);
-                    btnText = filterTextGo.AddComponent<Text>();
-                    btnText.text = "<b>All</b>";
-                    btnText.font = Resources.GetBuiltinResource<Font>("Arial.ttf");
-                    btnText.fontSize = 30;
-                    btnText.color = disabledText;
-                    btnText.alignment = TextAnchor.MiddleCenter;
-                    var textRect = filterTextGo.GetComponent<RectTransform>();
-                    textRect.pivot = new Vector2(0.5f, 0.5f);
-                    textRect.sizeDelta = new Vector2(60, 40);
-                    textRect.anchorMin = new Vector2(0, 0);
-                    textRect.anchorMax = new Vector2(1, 1);
-                    textRect.anchoredPosition = new Vector2(0, 0);
-
-                }
-
+                CreateFilterButton(selectorTrans);
+                ShrinkSearch(selectorTrans);
             } else {
                 MelonLogger.Msg(System.ConsoleColor.Red, "Selection Couldn't be Found");
             }
         }
 
-        static void handleClick() {
-            float currTime = Time.time;
-            if (currTime - prevTime < 1) {
-                MelonLogger.Msg(System.ConsoleColor.Blue, "Please Wait to Click Again");
-            } else {
-                if (displayAll) {
-                    displayAll = false;
-                } else {
-                    displayAll = true;
+        private static void ShrinkSearch(Transform selectorTransform) {
+            Transform searchTrans = selectorTransform.Find("SearchInput");
+            GameObject SearchInput = searchTrans != null ? searchTrans.gameObject : null;
+            if (SearchInput != null) {
+                InputField searchField = SearchInput.GetComponent<InputField>();
+                Selectable.Transition hover = searchField.transition;
+                searchField.transition = Selectable.Transition.None;
+
+                Transform backgroundImage = searchTrans.Find("Image");
+                if (backgroundImage != null) {
+                    MelonLogger.Msg(System.ConsoleColor.Magenta, "Shrinking Search Background Image");
+                    RectTransform bgRect = backgroundImage.GetComponent<RectTransform>();
+                    bgRect.anchoredPosition = new Vector2(10f, -1);
+                    bgRect.pivot = new Vector2(0, 0.5f);
+                    bgRect.sizeDelta = new Vector2(-90f, 0);
                 }
 
-                // Update button color after display
-                ToggleButton();
-
-                if (selectorInterface != null) {
-                    selectorInterface.RebuildResultsList();
+                Transform textArea = searchTrans.Find("Text Area");
+                if (textArea != null) {
+                    MelonLogger.Msg(System.ConsoleColor.Magenta, "Shrinking Search Text Area");
+                    RectTransform textAreaRect = textArea.GetComponent<RectTransform>();
+                    textAreaRect.anchoredPosition = new Vector2(5f, 0);
+                    textAreaRect.pivot = new Vector2(0, 0.5f);
+                    textAreaRect.sizeDelta = new Vector2(-90f, -18f);
                 }
-                prevTime = currTime;
+
             }
+        }
+
+        private static void CreateFilterButton(Transform parent) {
+            MelonLogger.Msg(System.ConsoleColor.Magenta, "Trying to Create Filter Button");
+
+            // Create a GameObject for the button
+            GameObject filterGo = new GameObject("FilterButton");
+            filterGo.transform.SetParent(parent, false);
+            Button filterBtn = filterGo.AddComponent<Button>();
+            btnBg = filterGo.AddComponent<Image>();
+            btnBg.color = disabledBg;
+            RectTransform filterBtnRect = filterBtn.GetComponent<RectTransform>();
+            filterBtnRect.anchoredPosition = new Vector2(140, 202.5f);
+            filterBtnRect.sizeDelta = new Vector2(60, 40);
+            filterBtnRect.pivot = new Vector2(0.5f, 0.5f);
+
+            filterBtn.onClick.AddListener((UnityAction)handleClick);
+
+            // Create a GameObject for the Button Text
+            // Text and Image componenets cannot be added to the same gameobject
+            GameObject filterTextGo = new GameObject("FilterText");
+            filterTextGo.transform.SetParent(filterGo.transform, false);
+            btnText = filterTextGo.AddComponent<Text>();
+            btnText.text = "<b>All</b>";
+            btnText.font = Resources.GetBuiltinResource<Font>("Arial.ttf");
+            btnText.fontSize = 30;
+            btnText.color = disabledText;
+            btnText.alignment = TextAnchor.MiddleCenter;
+            var textRect = filterTextGo.GetComponent<RectTransform>();
+            textRect.pivot = new Vector2(0.5f, 0.5f);
+            textRect.sizeDelta = new Vector2(60, 40);
+            textRect.anchorMin = new Vector2(0, 0);
+            textRect.anchorMax = new Vector2(1, 1);
+            textRect.anchoredPosition = new Vector2(0, 0);
         }
 
         private static void createLabels(Transform parent) {
@@ -381,8 +377,11 @@ namespace BetterCounterOffer {
 
 
         public override void OnInitializeMelon() {
-            MelonLogger.Msg("Initializing Better Counter Offer...Go Make that Money");
-            MelonLogger.Msg("If you find any bugs message me on nexus - OverweightUnicorn");
+            MelonLogger.Msg(System.ConsoleColor.Magenta,"Initializing Better Counter Offer...Go Make that Money");
+            MelonLogger.Msg(System.ConsoleColor.Magenta, "If you find any bugs,");
+            MelonLogger.Msg(System.ConsoleColor.Magenta, "first check that your game is updated and on the main branch,");
+            MelonLogger.Msg(System.ConsoleColor.Magenta, "Then if the bug persists message me on nexus");
+            MelonLogger.Msg(System.ConsoleColor.Magenta, "- OverweightUnicorn");
         }
 
     }
