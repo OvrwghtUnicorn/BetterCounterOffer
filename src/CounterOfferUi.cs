@@ -28,8 +28,8 @@ namespace BetterCounterOffer {
 
     public class CounterOfferUI : MelonMod {
 
-        private static Color disabledBg = new Color(84, 84, 84);
-        private static Color disabledText = new Color(64, 64, 64);
+        private static Color disabledBg = new Color(0.4f, 0.4f, 0.4f);
+        private static Color disabledText = new Color(0.2f, 0.2f, 0.2f);
 
         public static GameObject PlayerRef = null;
         public static GameObject popupRef = null;
@@ -262,16 +262,21 @@ namespace BetterCounterOffer {
 
                     MelonLogger.Msg(System.ConsoleColor.Cyan, "Attempting to Add Filter Button to parent");
 
+                    // Create a GameObject for the button
                     GameObject filterGo = new GameObject("FilterButton");
-                    filterGo.transform.SetParent(searchTrans, false);
-
+                    filterGo.transform.SetParent(selectorTrans, false);
+                    Button filterBtn = filterGo.AddComponent<Button>();
                     btnBg = filterGo.AddComponent<Image>();
                     btnBg.color = disabledBg;
+                    RectTransform filterBtnRect = filterBtn.GetComponent<RectTransform>();
+                    filterBtnRect.anchoredPosition = new Vector2(140, 202.5f);
+                    filterBtnRect.sizeDelta = new Vector2(60, 40);
+                    filterBtnRect.pivot = new Vector2(0.5f, 0.5f);
 
-                    Button filterButton = filterGo.AddComponent<Button>();
-                    filterButton.transition = hover;
-                    filterButton.onClick.AddListener((UnityAction)handleClick);
+                    filterBtn.onClick.AddListener((UnityAction)handleClick);
 
+                    // Create a GameObject for the Button Text
+                    // Text and Image componenets cannot be added to the same gameobject
                     GameObject filterTextGo = new GameObject("FilterText");
                     filterTextGo.transform.SetParent(filterGo.transform, false);
                     btnText = filterTextGo.AddComponent<Text>();
@@ -280,12 +285,12 @@ namespace BetterCounterOffer {
                     btnText.fontSize = 30;
                     btnText.color = disabledText;
                     btnText.alignment = TextAnchor.MiddleCenter;
-                    var buttonRect = filterGo.GetComponent<RectTransform>();
-                    buttonRect.pivot = new Vector2(1, 1);
-                    buttonRect.sizeDelta = new Vector2(60, 40);
-                    buttonRect.anchorMin = new Vector2(1, 1);
-                    buttonRect.anchorMax = new Vector2(1, 1);
-                    buttonRect.anchoredPosition = new Vector2(-15f, -5f);
+                    var textRect = filterTextGo.GetComponent<RectTransform>();
+                    textRect.pivot = new Vector2(0.5f, 0.5f);
+                    textRect.sizeDelta = new Vector2(60, 40);
+                    textRect.anchorMin = new Vector2(0, 0);
+                    textRect.anchorMax = new Vector2(1, 1);
+                    textRect.anchoredPosition = new Vector2(0, 0);
 
                 }
 
@@ -296,7 +301,6 @@ namespace BetterCounterOffer {
 
         static void handleClick() {
             float currTime = Time.time;
-            MelonLogger.Msg($"Time passed: {currTime} - {prevTime} = {currTime - prevTime}");
             if (currTime - prevTime < 1) {
                 MelonLogger.Msg(System.ConsoleColor.Blue, "Please Wait to Click Again");
             } else {
@@ -305,10 +309,11 @@ namespace BetterCounterOffer {
                 } else {
                     displayAll = true;
                 }
+
+                // Update button color after display
                 ToggleButton();
-                MelonLogger.Msg($"display all: {displayAll}");
+
                 if (selectorInterface != null) {
-                    MelonLogger.Msg($"Attempting to rebuild list");
                     selectorInterface.RebuildResultsList();
                 }
                 prevTime = currTime;
