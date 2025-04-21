@@ -32,11 +32,15 @@ namespace BetterCounterOffer {
         public static GameObject PlayerRef = null;
         public static GameObject popupRef = null;
         public static GameObject productSelectorRef = null;
+
+        public static GameObject offerInfoGO = null;
         public static Text initialOfferText = null;
         public static Text successRateText = null;
         public static Text maxCashText = null;
         public static Text btnText = null;
-        public static Image btnBg = null; 
+        public static Image btnBg = null;
+        public static Font gameFont = null;
+
         public static bool displayAll = false;
         public static float prevTime = 0;
         public static Gradient colorMap = new Gradient();
@@ -317,18 +321,17 @@ namespace BetterCounterOffer {
         }
 
         private static void createLabels(Transform parent) {
-            Text dupMe = null;
             Transform titleTransform = parent.Find("Title");
             if (titleTransform != null) {
-                dupMe = titleTransform.GetComponent<Text>();
+                gameFont = titleTransform.GetComponent<Text>().font;
             }
 
-            GameObject inputGO = new GameObject("OfferInformation");
-            inputGO.transform.SetParent(parent, false);
-            inputGO.transform.localPosition = new Vector3(181.5444f, 1.175f, -9.2547f);
-            inputGO.AddComponent<CanvasRenderer>();
+            offerInfoGO = new GameObject("OfferInformation");
+            offerInfoGO.transform.SetParent(parent, false);
+            offerInfoGO.transform.localPosition = new Vector3(181.5444f, 1.175f, -9.2547f);
+            offerInfoGO.AddComponent<CanvasRenderer>();
 
-            var rect = inputGO.AddComponent<RectTransform>();
+            var rect = offerInfoGO.AddComponent<RectTransform>();
             rect.anchoredPosition = new Vector2(-270.0037f, -150f);
             rect.anchorMin = new Vector2(1, 1);
             rect.anchorMax = new Vector2(1, 1);
@@ -336,43 +339,37 @@ namespace BetterCounterOffer {
             rect.sizeDelta = new Vector2(300, 100);
 
             // Success Rate
-            GameObject initialOfferGO = new GameObject("InitialCash");
-            initialOfferGO.transform.SetParent(inputGO.transform, false);
-            initialOfferGO.transform.localPosition = new Vector3(0, 40f, 0);
-            initialOfferText = initialOfferGO.AddComponent<Text>();
-            initialOfferText.text = "Initial Offer Price: ";
-            initialOfferText.font = dupMe != null ? dupMe.font : Resources.GetBuiltinResource<Font>("Arial.ttf");
-            initialOfferText.fontSize = 30;
-            initialOfferText.color = Color.gray;
-            initialOfferText.alignment = TextAnchor.MiddleCenter;
-            RectTransform initialOfferRect = initialOfferGO.transform.GetComponent<RectTransform>();
-            initialOfferRect.sizeDelta = new Vector2(600, 100);
+            if (initialOfferText == null) {
+                initialOfferText = CreateLabel(offerInfoGO.transform, "InitialCash", "Initial Offer Price: ", new Vector3(0, 40f, 0));
+            }
 
             // Max Cash
-            GameObject maxCashGO = new GameObject("MaxCash");
-            maxCashGO.transform.SetParent(inputGO.transform, false);
-            maxCashGO.transform.transform.localPosition = new Vector3(0, 5f, 0);
-            maxCashText = maxCashGO.AddComponent<Text>();
-            maxCashText.text = "$1000 Max";
-            maxCashText.font = dupMe != null ? dupMe.font : Resources.GetBuiltinResource<Font>("Arial.ttf");
-            maxCashText.fontSize = 30;
-            maxCashText.color = Color.gray;
-            maxCashText.alignment = TextAnchor.MiddleCenter;
-            RectTransform maxCashRect = maxCashGO.transform.GetComponent<RectTransform>();
-            maxCashRect.sizeDelta = new Vector2(600, 100);
+            if (maxCashText == null) {
+                maxCashText = CreateLabel(offerInfoGO.transform, "MaxCash", "$1000 Max", new Vector3(0, 5f, 0));
+            }
+
 
             // Success Rate
-            GameObject successRateGO = new GameObject("SuccessRate");
-            successRateGO.transform.SetParent(inputGO.transform, false);
-            successRateGO.transform.localPosition = new Vector3(0, -30f, 0);
-            successRateText = successRateGO.AddComponent<Text>();
-            successRateText.text = "100% Success Rate";
-            successRateText.font = dupMe != null ? dupMe.font : Resources.GetBuiltinResource<Font>("Arial.ttf");
-            successRateText.fontSize = 30;
-            successRateText.color = dupMe != null ? dupMe.color : Color.cyan;
-            successRateText.alignment = TextAnchor.MiddleCenter;
-            RectTransform successRateRect = successRateGO.transform.GetComponent<RectTransform>();
-            successRateRect.sizeDelta = new Vector2(600, 100);
+            if(successRateText == null) {
+                successRateText = CreateLabel(offerInfoGO.transform, "SuccessRate", "100% Success Rate", new Vector3(0, -30f, 0));
+            }
+
+        }
+
+        public static Text CreateLabel(Transform parent, string title, string text, Vector3 localPosition) {
+            GameObject labelGo = new GameObject(title);
+            labelGo.transform.SetParent(parent, false);
+            labelGo.transform.localPosition = localPosition;
+            Text textLabel = labelGo.AddComponent<Text>();
+            textLabel.text = text;
+            textLabel.font = gameFont != null ? gameFont : Resources.GetBuiltinResource<Font>("Arial.ttf");
+            textLabel.fontSize = 30;
+            textLabel.color = Color.gray;
+            textLabel.alignment = TextAnchor.MiddleCenter;
+            RectTransform labelRect = labelGo.transform.GetComponent<RectTransform>();
+            labelRect.sizeDelta = new Vector2(600, 100);
+
+            return textLabel;
         }
 
 
@@ -381,7 +378,7 @@ namespace BetterCounterOffer {
             MelonLogger.Msg(System.ConsoleColor.Magenta, "If you find any bugs,");
             MelonLogger.Msg(System.ConsoleColor.Magenta, "first check that your game is updated and on the main branch,");
             MelonLogger.Msg(System.ConsoleColor.Magenta, "Then if the bug persists message me on nexus");
-            MelonLogger.Msg(System.ConsoleColor.Magenta, "- OverweightUnicorn");
+            MelonLogger.Msg(System.ConsoleColor.Magenta, "- OverweightUnicorn\n");
         }
 
     }
