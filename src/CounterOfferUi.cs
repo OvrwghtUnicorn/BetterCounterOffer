@@ -9,6 +9,8 @@ using Il2CppScheduleOne.Economy;
 using UnityEngine.Events;
 using Il2CppScheduleOne.GameTime;
 using Il2CppScheduleOne.UI.Handover;
+using Il2CppInterop.Runtime;
+using UnityEngine.EventSystems;
 
 [assembly: MelonInfo(typeof(BetterCounterOffer.CounterOfferUI), BetterCounterOffer.BuildInfo.Name, BetterCounterOffer.BuildInfo.Version, BetterCounterOffer.BuildInfo.Author, BetterCounterOffer.BuildInfo.DownloadLink)]
 [assembly: MelonColor(255, 191, 0, 255)]
@@ -72,7 +74,7 @@ namespace BetterCounterOffer {
             prevTime = 0;
             displayAll = false;
 
-            ToggleButton();
+            //ToggleButton();
             SetInitialPriceText(instance.price);
 
             float maxSpend = CalculateSpendingLimits(currCustomer);
@@ -84,6 +86,7 @@ namespace BetterCounterOffer {
 
         public static void SetSuccessRateText(float success) {
             if (successRateText == null) {
+                MelonLogger.Msg("successRateText is null??");
                 return;
             }
             successRateText.text = $"<b>{Mathf.RoundToInt(success * 100)}% Chance of Success</b>";
@@ -124,7 +127,7 @@ namespace BetterCounterOffer {
                 }
 
                 // Update button color after display
-                ToggleButton();
+                //ToggleButton();
 
                 if (selectorInterface != null) {
                     selectorInterface.RebuildResultsList();
@@ -226,9 +229,9 @@ namespace BetterCounterOffer {
                     MelonLogger.Msg(System.ConsoleColor.Magenta, "CounterOffer Container Found Lets Make it Better");
 
                     if (!CounterOfferConfig.disableAllLabels) {
-                        createLabels(transform);
+                        CreateLabels(transform);
                         GrowPopUpWindow(transform);
-                        shiftOfferElements(transform);
+                        ShiftOfferElements(transform);
                     }
                     UpdateSelectorUI(transform);
                 }
@@ -245,7 +248,7 @@ namespace BetterCounterOffer {
             }
         }
 
-        private static void adjustUiElements(Transform parent, string searchStr) {
+        private static void AdjustUiElements(Transform parent, string searchStr) {
             Transform fpTransform = parent.Find(searchStr);
             if (fpTransform != null) {
                 Vector2 anchorPos = uiPositions[searchStr][labelCount];
@@ -257,14 +260,15 @@ namespace BetterCounterOffer {
             }
         }
 
-        private static void shiftOfferElements(Transform parent) {
-            adjustUiElements(parent, "Fair price");
-            adjustUiElements(parent, "Price");
-            adjustUiElements(parent, "Subtitle (1)");
-            adjustUiElements(parent, "Product");
-            adjustUiElements(parent, "Add");
-            adjustUiElements(parent, "Remove");
-            adjustUiElements(parent, "Subtitle");
+        private static void ShiftOfferElements(Transform parent) {
+            AdjustUiElements(parent, "Fair price");
+            AdjustUiElements(parent, "Price");
+            AdjustUiElements(parent, "Subtitle (1)");
+            AdjustUiElements(parent, "Product");
+            AdjustUiElements(parent, "Add");
+            AdjustUiElements(parent, "Remove");
+            AdjustUiElements(parent, "Subtitle");
+            AdjustUiElements(parent, "Selection");
         }
 
         private static void UpdateSelectorUI(Transform parent) {
@@ -273,15 +277,80 @@ namespace BetterCounterOffer {
                 MelonLogger.Msg(System.ConsoleColor.DarkGreen, $"Selection Adjusted");
                 selectorInterface = selectorTrans.GetComponent<CounterOfferProductSelector>();
 
-                Vector2 anchor = uiPositions["Selection"][labelCount];
-                RectTransform selectorRect = selectorTrans.GetComponent<RectTransform>();
-                selectorRect.anchoredPosition = anchor;
+                //CreateFilterButton(selectorTrans);
+                //ShrinkSearch(selectorTrans);
+                Transform windowTrans = selectorTrans.Find("Window");
+                if (windowTrans != null) { 
+                    RectTransform windowRect = windowTrans.GetComponent<RectTransform>();
+                    windowRect.anchoredPosition = new Vector2(0, -90);
 
-                CreateFilterButton(selectorTrans);
-                ShrinkSearch(selectorTrans);
+                    GameObject btnContainerGO = new GameObject("Filter_Buttons");
+                    btnContainerGO.transform.SetParent(selectorTrans, false);
+                    btnContainerGO.AddComponent<CanvasRenderer>();
+                    RectTransform containerRectTrans = btnContainerGO.AddComponent<RectTransform>();
+                    containerRectTrans.anchorMin = new Vector2(0, 0.5f);
+                    containerRectTrans.anchorMax = new Vector2(1, 0.5f);
+                    containerRectTrans.anchoredPosition = new Vector2(0f, 0f);
+                    containerRectTrans.sizeDelta = new Vector2(1, 50);
+                    Image containerBg = btnContainerGO.AddComponent<Image>();
+                    containerBg.color = Color.gray;
+
+                    GridLayoutGroup containerGrid = btnContainerGO.AddComponent<GridLayoutGroup>();
+                    containerGrid.cellSize = new Vector2(120, 45);
+                    containerGrid.spacing = new Vector2(2, 0);
+                    containerGrid.childAlignment = TextAnchor.LowerCenter;
+                    containerGrid.constraint = GridLayoutGroup.Constraint.FixedColumnCount;
+                    containerGrid.constraintCount = 3;
+
+
+                    TabController.font = gameFont != null ? gameFont : Resources.GetBuiltinResource<Font>("Arial.ttf"); ;
+                    TabController.AddTab(btnContainerGO.transform, "Favorites", "<b>Fave</b>");
+                    TabController.AddTab(btnContainerGO.transform, "Listed", "<b>Listed</b>");
+                    TabController.AddTab(btnContainerGO.transform, "Discovered", "<b>All</b>");
+                    TabController.SetSelected("Listed");
+                }
+
+
+
+
             } else {
                 MelonLogger.Msg(System.ConsoleColor.Red, "Selection Couldn't be Found");
             }
+        }
+
+        //private static (TabButton, Image, Text) CreateBtnImgTxt(Transform parent, String title, Color bgColor) {
+        //    GameObject buttonGo = new GameObject($"{title}_Button");
+        //    buttonGo.transform.SetParent(parent, false);
+        //    buttonGo.AddComponent<CanvasRenderer>();
+        //    buttonGo.AddComponent<Button>();
+        //    Image buttonImg = buttonGo.AddComponent<Image>();
+        //    buttonImg.color = bgColor;
+
+        //    TabButton tb = buttonGo.AddComponent<TabButton>();
+        //    tb.background = buttonImg;
+
+        //    GameObject buttonTextGo = new GameObject($"{title}_Button_Text");
+        //    buttonTextGo.transform.SetParent(buttonGo.transform, false);
+        //    Text buttonText = buttonTextGo.AddComponent<Text>();
+        //    buttonText.text = "Test";
+        //    buttonText.fontSize = 30;
+        //    buttonText.font = gameFont != null ? gameFont : Resources.GetBuiltinResource<Font>("Arial.ttf");
+        //    buttonText.color = Color.black;
+        //    buttonText.alignment = TextAnchor.MiddleCenter;
+
+        //    var textRect = buttonTextGo.GetComponent<RectTransform>();
+        //    textRect.pivot = new Vector2(0.5f, 0.5f);
+        //    textRect.sizeDelta = new Vector2(60, 40);
+        //    textRect.anchorMin = new Vector2(0, 0);
+        //    textRect.anchorMax = new Vector2(1, 1);
+        //    textRect.anchoredPosition = new Vector2(0, 0);
+
+
+        //    return (tb, buttonImg, buttonText);
+        //}
+
+        public static void TabSelected(Tab selected) {
+            MelonLogger.Msg($"{selected.id} Selected");
         }
 
         private static void ShrinkSearch(Transform selectorTransform) {
@@ -289,12 +358,12 @@ namespace BetterCounterOffer {
             GameObject SearchInput = searchTrans != null ? searchTrans.gameObject : null;
             if (SearchInput != null) {
                 InputField searchField = SearchInput.GetComponent<InputField>();
-                Selectable.Transition hover = searchField.transition;
-                searchField.transition = Selectable.Transition.None;
+                //Selectable.Transition hover = searchField.transition;
+                //searchField.transition = Selectable.Transition.None;
 
                 Transform backgroundImage = searchTrans.Find("Image");
                 if (backgroundImage != null) {
-                    MelonLogger.Msg(System.ConsoleColor.Magenta, "Shrinking Search Background Image");
+                    MelonLogger.Msg(System.ConsoleColor.Magenta, "Shrinking Search Background Image ");
                     RectTransform bgRect = backgroundImage.GetComponent<RectTransform>();
                     bgRect.anchoredPosition = new Vector2(10f, -1);
                     bgRect.pivot = new Vector2(0, 0.5f);
@@ -347,7 +416,7 @@ namespace BetterCounterOffer {
             textRect.anchoredPosition = new Vector2(0, 0);
         }
 
-        private static void createLabels(Transform parent) {
+        private static void CreateLabels(Transform parent) {
             Transform titleTransform = parent.Find("Title");
             if (titleTransform != null) {
                 gameFont = titleTransform.GetComponent<Text>().font;
@@ -370,6 +439,7 @@ namespace BetterCounterOffer {
             MelonLogger.Msg($"Disable Inital Price {CounterOfferConfig.disableInitialOffer}");
             if (initialOfferText == null && !CounterOfferConfig.disableInitialOffer) {
                 initialOfferText = CreateLabel(offerInfoGO.transform, "InitialCash", "Initial Offer Price: ", new Vector3(0, startPosition, 0));
+                MelonLogger.Msg($"Is initialOfferText initialized? {initialOfferText.text}");
                 startPosition -= 35f;
                 labelCount++;
             }
@@ -378,6 +448,7 @@ namespace BetterCounterOffer {
             MelonLogger.Msg($"Disable Max Limit {CounterOfferConfig.disableMaxLimit}");
             if (maxCashText == null && !CounterOfferConfig.disableMaxLimit) {
                 maxCashText = CreateLabel(offerInfoGO.transform, "MaxCash", "$1000 Max", new Vector3(0, startPosition, 0));
+                MelonLogger.Msg($"Is maxCashText initialized? {maxCashText.text}");
                 startPosition -= 35f;
                 labelCount++;
             }
@@ -387,6 +458,7 @@ namespace BetterCounterOffer {
             MelonLogger.Msg($"Disable Success Rate {CounterOfferConfig.disableSuccessRate}");
             if (successRateText == null && !CounterOfferConfig.disableSuccessRate) {
                 successRateText = CreateLabel(offerInfoGO.transform, "SuccessRate", "100% Success Rate", new Vector3(0, startPosition, 0));
+                MelonLogger.Msg($"Is successRateText initialized? {successRateText.text}");
                 labelCount++;
             }
         }
