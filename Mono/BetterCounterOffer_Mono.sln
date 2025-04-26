@@ -1,0 +1,37 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.13.35919.96
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BetterCounterOffer", "BetterCounterOffer.csproj", "{32821C00-E179-9434-C365-9DEAC169E868}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Debug|x64 = Debug|x64
+		Release_Mono|Any CPU = Release_Mono|Any CPU
+		Release_Mono|x64 = Release_Mono|x64
+		Release|Any CPU = Release|Any CPU
+		Release|x64 = Release|x64
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{32821C00-E179-9434-C365-9DEAC169E868}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{32821C00-E179-9434-C365-9DEAC169E868}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{32821C00-E179-9434-C365-9DEAC169E868}.Debug|x64.ActiveCfg = Debug|x64
+		{32821C00-E179-9434-C365-9DEAC169E868}.Debug|x64.Build.0 = Debug|x64
+		{32821C00-E179-9434-C365-9DEAC169E868}.Release_Mono|Any CPU.ActiveCfg = Release_Mono|Any CPU
+		{32821C00-E179-9434-C365-9DEAC169E868}.Release_Mono|Any CPU.Build.0 = Release_Mono|Any CPU
+		{32821C00-E179-9434-C365-9DEAC169E868}.Release_Mono|x64.ActiveCfg = Release_Mono|x64
+		{32821C00-E179-9434-C365-9DEAC169E868}.Release_Mono|x64.Build.0 = Release_Mono|x64
+		{32821C00-E179-9434-C365-9DEAC169E868}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{32821C00-E179-9434-C365-9DEAC169E868}.Release|Any CPU.Build.0 = Release|Any CPU
+		{32821C00-E179-9434-C365-9DEAC169E868}.Release|x64.ActiveCfg = Release|x64
+		{32821C00-E179-9434-C365-9DEAC169E868}.Release|x64.Build.0 = Release|x64
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {5ACD9478-B9AA-4A36-AA41-55BE39A9EAC3}
+	EndGlobalSection
+EndGlobal

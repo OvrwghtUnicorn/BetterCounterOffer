@@ -31,7 +31,9 @@ namespace BetterCounterOffer {
     static class CounterOfferInterfaceChangePricePatch {
 
         public static void Postfix(CounterofferInterface __instance) {
-            CounterOfferUI.UpdateSuccessRate(__instance);
+            if (!CounterOfferConfig.disableSuccessRate) {
+                CounterOfferUI.UpdateSuccessRate(__instance);
+            }
         }
     }
 
@@ -42,7 +44,9 @@ namespace BetterCounterOffer {
             ProductDefinition temp = __instance.selectedProduct;
             float priceChange = __instance.quantity * temp.Price - __instance.price;
             __instance.ChangePrice(priceChange);
-            CounterOfferUI.UpdateSuccessRate(__instance);
+            if (!CounterOfferConfig.disableSuccessRate) {
+                CounterOfferUI.UpdateSuccessRate(__instance);
+            }
         }
     }
 
@@ -53,7 +57,9 @@ namespace BetterCounterOffer {
         public static void Postfix(CounterofferInterface __instance) {
             float priceChange = (__instance.quantity * __instance.selectedProduct.Price) - __instance.price;
             __instance.ChangePrice(priceChange);
-            CounterOfferUI.UpdateSuccessRate(__instance);
+            if (!CounterOfferConfig.disableSuccessRate) {
+                CounterOfferUI.UpdateSuccessRate(__instance);
+            }
         }
     }
 
@@ -73,8 +79,15 @@ namespace BetterCounterOffer {
         public static void Postfix(CounterofferInterface __instance, ref Il2Generic.List<ProductDefinition> __result, ref string searchTerm) {
 
             HashSet<EDrugType> drugTypes = new HashSet<EDrugType>();
-            Il2Generic.List<ProductDefinition> lp = CounterOfferUI.displayAll ? ProductManager.DiscoveredProducts : ProductManager.ListedProducts;
-            Il2Generic.List<ProductDefinition> newList = new Il2Generic.List<ProductDefinition>();
+            Il2Generic.List<ProductDefinition> lp;
+            if(CounterOfferUI.currTab == "Listed") {
+                lp = ProductManager.ListedProducts;
+            } else if(CounterOfferUI.currTab == "Favorites") {
+                lp = ProductManager.FavouritedProducts;
+            } else {
+                lp = ProductManager.DiscoveredProducts;
+            }
+                Il2Generic.List<ProductDefinition> newList = new Il2Generic.List<ProductDefinition>();
             if (searchTerm.ToLower().Contains("weed")) { drugTypes.Add(EDrugType.Marijuana); }
 
             if (searchTerm.ToLower().Contains("coke")) { drugTypes.Add(EDrugType.Cocaine); }

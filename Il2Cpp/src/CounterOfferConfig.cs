@@ -25,7 +25,7 @@ namespace BetterCounterOffer {
             bool fileExist = File.Exists(path);
             if (!fileExist) {
                 SaveConfig();
-                MelonLogger.Msg("CounterOffer Config file created with default values.");
+                MelonLogger.Msg(ConsoleColor.Magenta,"CounterOffer Config file created with default values.");
             }
             string[] fileLines = File.ReadAllLines(path);
             foreach (string line in fileLines) {
@@ -36,7 +36,6 @@ namespace BetterCounterOffer {
                     string rawValue = pair[1].Trim();
                     bool value;
                     if (Boolean.TryParse(rawValue, out value)) {
-                        Console.WriteLine($"{key} = {value}");
                         if (key == "DisableAllLabels") {
                             CounterOfferConfig.disableAllLabels = value;
                             continue;
@@ -69,7 +68,7 @@ namespace BetterCounterOffer {
             defaultInterpolatedStringHandler.AppendFormatted<bool>(CounterOfferConfig.disableMaxLimit);
             defaultInterpolatedStringHandler.AppendLiteral("\n  Disable Success Rate=");
             defaultInterpolatedStringHandler.AppendFormatted<bool>(CounterOfferConfig.disableSuccessRate);
-            MelonLogger.Msg(System.ConsoleColor.Magenta, defaultInterpolatedStringHandler.ToStringAndClear());
+            MelonLogger.Msg(ConsoleColor.Magenta, defaultInterpolatedStringHandler.ToStringAndClear());
         }
 
         // Token: 0x06000004 RID: 4 RVA: 0x00002708 File Offset: 0x00000908
