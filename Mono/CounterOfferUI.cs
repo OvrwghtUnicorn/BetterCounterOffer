@@ -1,4 +1,4 @@
-using MelonLoader;
+﻿using MelonLoader;
 using UnityEngine;
 using UnityEngine.UI;
 using ScheduleOne;
@@ -7,6 +7,8 @@ using ScheduleOne.Product;
 using ScheduleOne.Economy;
 using ScheduleOne.GameTime;
 using ScheduleOne.UI.Handover;
+using ScheduleOne.Law;
+using ScheduleOne.Property.Utilities.Water;
 
 [assembly: MelonInfo(typeof(BetterCounterOffer.CounterOfferUI), BetterCounterOffer.BuildInfo.Name, BetterCounterOffer.BuildInfo.Version, BetterCounterOffer.BuildInfo.Author, BetterCounterOffer.BuildInfo.DownloadLink)]
 [assembly: MelonColor(255, 191, 0, 255)]
@@ -71,12 +73,12 @@ namespace BetterCounterOffer {
                 if (!CounterOfferConfig.disableInitialOffer) {
                     SetInitialPriceText(instance.price);
                 }
-                
+
                 if (!CounterOfferConfig.disableMaxLimit) {
                     float maxSpend = CalculateSpendingLimits(currCustomer);
                     SetMaxCashText(maxSpend);
                 }
-                
+
                 if (!CounterOfferConfig.disableSuccessRate) {
                     float successChance = CalculateSuccessProbability(currCustomer, instance.selectedProduct, instance.quantity, instance.price);
                     SetSuccessRateText(successChance);
@@ -260,15 +262,15 @@ namespace BetterCounterOffer {
                 }
 
 
-                    Transform windowTrans = selectorTrans.Find("Window");
-                if (windowTrans != null) { 
+                Transform windowTrans = selectorTrans.Find("Window");
+                if (windowTrans != null) {
                     RectTransform windowRect = windowTrans.GetComponent<RectTransform>();
                     windowRect.anchoredPosition = new Vector2(0, -87);
 
                     //GridLayoutGroup windowGlg = windowTrans.GetComponent<GridLayoutGroup>();
                     //windowGlg.cellSize = new Vector2(87, 87);
-                    
-                    if(selectorTabControl == null) {
+
+                    if (selectorTabControl == null) {
                         selectorTabControl = new TabController(selectorTrans);
                         selectorTabControl.font = gameFont;
                         selectorTabControl.AddTab("Favorites", "<b>Fave</b>");
@@ -361,7 +363,7 @@ namespace BetterCounterOffer {
         }
 
         public override void OnSceneWasLoaded(int buildIndex, string sceneName) {
-            if(sceneName.ToLower() == "main") {
+            if (sceneName.ToLower() == "main") {
                 labelCount = 0;
                 selectorTabControl = null;
             }

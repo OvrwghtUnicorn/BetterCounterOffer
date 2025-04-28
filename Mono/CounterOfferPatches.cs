@@ -66,7 +66,7 @@ namespace BetterCounterOffer {
     static class CounterOfferProductSelectorOpenPatch {
         public static void Postfix(CounterOfferProductSelector __instance) {
             if (CounterOfferUI.selectorInterface == null) {
-                MelonLogger.Msg(System.ConsoleColor.Magenta,"Attempting to caputre ProductSelector interface");
+                MelonLogger.Msg(System.ConsoleColor.Magenta, "Attempting to caputre ProductSelector interface");
                 CounterOfferUI.selectorInterface = __instance;
             }
         }
@@ -79,14 +79,14 @@ namespace BetterCounterOffer {
 
             HashSet<EDrugType> drugTypes = new HashSet<EDrugType>();
             List<ProductDefinition> lp;
-            if(CounterOfferUI.currTab == "Listed") {
+            if (CounterOfferUI.currTab == "Listed") {
                 lp = ProductManager.ListedProducts;
-            } else if(CounterOfferUI.currTab == "Favorites") {
+            } else if (CounterOfferUI.currTab == "Favorites") {
                 lp = ProductManager.FavouritedProducts;
             } else {
                 lp = ProductManager.DiscoveredProducts;
             }
-                List<ProductDefinition> newList = new List<ProductDefinition>();
+            List<ProductDefinition> newList = new List<ProductDefinition>();
             if (searchTerm.ToLower().Contains("weed")) { drugTypes.Add(EDrugType.Marijuana); }
 
             if (searchTerm.ToLower().Contains("coke")) { drugTypes.Add(EDrugType.Cocaine); }

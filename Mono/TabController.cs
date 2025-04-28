@@ -75,7 +75,7 @@ namespace BetterCounterOffer {
                 throw new Exception($"The key {id} already exists in the tab list");
             }
 
-            if(filterbuttons == null) {
+            if (filterbuttons == null) {
                 throw new Exception("Filter Buttons has not been initialized");
             }
             Tab newTab = CreateNewTab(filterbuttons.transform, id, text);
@@ -124,7 +124,7 @@ namespace BetterCounterOffer {
 
             EventTrigger.Entry eventEntryEnter = new EventTrigger.Entry();
             eventEntryEnter.eventID = EventTriggerType.PointerEnter;
-            eventEntryEnter.callback.AddListener((BaseEventData eventData) => HandleButtonEnter(newTab)); 
+            eventEntryEnter.callback.AddListener((BaseEventData eventData) => HandleButtonEnter(newTab));
 
             EventTrigger.Entry eventEntryExit = new EventTrigger.Entry();
             eventEntryExit.eventID = EventTriggerType.PointerExit;
@@ -155,7 +155,7 @@ namespace BetterCounterOffer {
 
         public void HandleButtonClick(Tab currTab) {
             float currTime = Time.time;
-            if(currTime - prevTime > clickBuffer) {
+            if (currTime - prevTime > clickBuffer) {
                 CounterOfferUI.TabSelected(currTab);
                 selectedTab = currTab;
                 ResetTabs();

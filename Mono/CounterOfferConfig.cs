@@ -1,5 +1,4 @@
 ﻿using System.Reflection;
-using System.Runtime.CompilerServices;
 using MelonLoader;
 
 namespace BetterCounterOffer {
@@ -25,7 +24,7 @@ namespace BetterCounterOffer {
             bool fileExist = File.Exists(path);
             if (!fileExist) {
                 SaveConfig();
-                MelonLogger.Msg(ConsoleColor.Magenta,"CounterOffer Config file created with default values.");
+                MelonLogger.Msg(ConsoleColor.Magenta, "CounterOffer Config file created with default values.");
             }
             string[] fileLines = File.ReadAllLines(path);
             foreach (string line in fileLines) {
@@ -58,17 +57,11 @@ namespace BetterCounterOffer {
                     }
                 }
             }
-            DefaultInterpolatedStringHandler defaultInterpolatedStringHandler = new DefaultInterpolatedStringHandler(100, 4);
-            defaultInterpolatedStringHandler.AppendLiteral("\nCounterOffer Config loaded:");
-            defaultInterpolatedStringHandler.AppendLiteral("\n  Disable All Labels=");
-            defaultInterpolatedStringHandler.AppendFormatted<bool>(CounterOfferConfig.disableAllLabels);
-            defaultInterpolatedStringHandler.AppendLiteral("\n  Disable Initial Offer=");
-            defaultInterpolatedStringHandler.AppendFormatted<bool>(CounterOfferConfig.disableInitialOffer);
-            defaultInterpolatedStringHandler.AppendLiteral("\n  Disable Max Limit=");
-            defaultInterpolatedStringHandler.AppendFormatted<bool>(CounterOfferConfig.disableMaxLimit);
-            defaultInterpolatedStringHandler.AppendLiteral("\n  Disable Success Rate=");
-            defaultInterpolatedStringHandler.AppendFormatted<bool>(CounterOfferConfig.disableSuccessRate);
-            MelonLogger.Msg(ConsoleColor.Magenta, defaultInterpolatedStringHandler.ToStringAndClear());
+            MelonLogger.Msg(ConsoleColor.Magenta, "\nCounterOffer Config loaded:");
+            MelonLogger.Msg(ConsoleColor.Magenta, $"\n  Disable All Labels={CounterOfferConfig.disableAllLabels}");
+            MelonLogger.Msg(ConsoleColor.Magenta, $"\n  Disable Initial Offer={CounterOfferConfig.disableInitialOffer}");
+            MelonLogger.Msg(ConsoleColor.Magenta, $"\n  Disable Max Limit={CounterOfferConfig.disableMaxLimit}");
+            MelonLogger.Msg(ConsoleColor.Magenta, $"\n  Disable Success Rate={CounterOfferConfig.disableSuccessRate}");
         }
 
         // Token: 0x06000004 RID: 4 RVA: 0x00002708 File Offset: 0x00000908
