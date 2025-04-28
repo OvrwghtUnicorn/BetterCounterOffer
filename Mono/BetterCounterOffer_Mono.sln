@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.13.35931.197 d17.13
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BetterCounterOffer_Mono", "BetterCounterOffer_Mono\BetterCounterOffer_Mono.csproj", "{0380EE9A-B1C5-452E-92EE-82023D4B504F}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BetterCounterOffer_Mono", "BetterCounterOffer_Mono.csproj", "{88D2052A-1897-0763-AA2A-999B803BE75E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -11,15 +11,15 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{0380EE9A-B1C5-452E-92EE-82023D4B504F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{0380EE9A-B1C5-452E-92EE-82023D4B504F}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{0380EE9A-B1C5-452E-92EE-82023D4B504F}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{0380EE9A-B1C5-452E-92EE-82023D4B504F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{88D2052A-1897-0763-AA2A-999B803BE75E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{88D2052A-1897-0763-AA2A-999B803BE75E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{88D2052A-1897-0763-AA2A-999B803BE75E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{88D2052A-1897-0763-AA2A-999B803BE75E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {37D6EF1C-CF09-42AD-82A5-B4ACAC74034E}
+		SolutionGuid = {0CE2805F-B000-46FE-BF79-64ACA9D21918}
 	EndGlobalSection
 EndGlobal
