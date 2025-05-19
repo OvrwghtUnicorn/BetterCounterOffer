@@ -19,7 +19,7 @@ namespace BetterCounterOffer {
         public const string Description = "A mod that improves the Counter Offer UI";
         public const string Author = "OverweightUnicorn";
         public const string Company = "UnicornsCanMod";
-        public const string Version = "3.0.0";
+        public const string Version = "3.2.0";
         public const string DownloadLink = "";
     }
 
@@ -33,6 +33,7 @@ namespace BetterCounterOffer {
         public static Text initialOfferText = null;
         public static Text successRateText = null;
         public static Text maxCashText = null;
+        public static Text fairPriceText = null;
         public static Text btnText = null;
         public static Image btnBg = null;
         public static Font gameFont = null;
@@ -71,7 +72,13 @@ namespace BetterCounterOffer {
 
             if (!CounterOfferConfig.disableAllLabels) {
                 if (!CounterOfferConfig.disableInitialOffer) {
-                    SetInitialPriceText(instance.price);
+                    if (CounterOfferConfig.enablePricePerUnit) {
+                        SetInitialPriceText(instance.price / instance.quantity, true);
+                        SetFairPriceText(instance.price / instance.quantity);
+                    } else {
+                        SetInitialPriceText(instance.price);
+                    }
+                        
                 }
                 
                 if (!CounterOfferConfig.disableMaxLimit) {
@@ -83,6 +90,7 @@ namespace BetterCounterOffer {
                     float successChance = CalculateSuccessProbability(currCustomer, instance.selectedProduct, instance.quantity, instance.price);
                     SetSuccessRateText(successChance);
                 }
+
             }
 
 
@@ -106,11 +114,23 @@ namespace BetterCounterOffer {
             maxCashText.text = $"<b>Spend Limit: ${Mathf.RoundToInt(maxSpend)}</b>";
         }
 
-        public static void SetInitialPriceText(float initialPrice) {
+        public static void SetInitialPriceText(float initialPrice, bool ppu = false) {
             if (initialOfferText == null) {
                 return;
             }
-            initialOfferText.text = $"<b>Initial Offer ${Mathf.RoundToInt(initialPrice)}</b>";
+            if (ppu) {
+                initialOfferText.text = $"<b>Initial Offer: ${Mathf.RoundToInt(initialPrice)} per Unit</b>";
+                return;
+            }
+            initialOfferText.text = $"<b>Initial Offer: ${Mathf.RoundToInt(initialPrice)}</b>";
+        }
+
+        public static void SetFairPriceText(float fairPrice) {
+            if (fairPriceText == null) {
+                return;
+            }
+
+            fairPriceText.text = $"<b>Price: ${Mathf.RoundToInt(fairPrice)} per Unit</b>";
         }
 
         public static float CalculateSpendingLimits(Customer customer) {
@@ -203,12 +223,12 @@ namespace BetterCounterOffer {
                 Transform transform = PlayerRef.transform.Find("CameraContainer/Camera/OverlayCamera/GameplayMenu/Phone/phone/AppsCanvas/Messages/Container/CounterofferInterface/Shade/Content");
                 GameObject popupContent = transform != null ? transform.gameObject : null;
                 if (popupContent != null) {
-                    MelonLogger.Msg(System.ConsoleColor.Magenta, "CounterOffer Container Found Lets Make it Better");
 
                     if (!CounterOfferConfig.disableAllLabels) {
                         CreateLabels(transform);
                         GrowPopUpWindow(transform);
                         ShiftOfferElements(transform);
+                        GetAndShiftFairPrice(transform);
                     }
                     UpdateSelectorUI(transform);
                 }
@@ -236,8 +256,6 @@ namespace BetterCounterOffer {
         }
 
         private static void ShiftOfferElements(Transform parent) {
-            //MelonLogger.Msg(System.ConsoleColor.Magenta, "Rearranging CounterOffer Popup Elements");
-            AdjustUiElements(parent, "Fair price");
             AdjustUiElements(parent, "Price");
             AdjustUiElements(parent, "Subtitle (1)");
             AdjustUiElements(parent, "Product");
@@ -245,6 +263,16 @@ namespace BetterCounterOffer {
             AdjustUiElements(parent, "Remove");
             AdjustUiElements(parent, "Subtitle");
             AdjustUiElements(parent, "Selection");
+        }
+
+        private static void GetAndShiftFairPrice(Transform parent) {
+            Transform fpTransform = parent.Find("Fair price");
+            if (fpTransform != null) {
+                Vector2 anchorPos = uiPositions["Fair price"][labelCount];
+                RectTransform fpRect = fpTransform.GetComponent<RectTransform>();
+                fpRect.anchoredPosition = anchorPos;
+                fairPriceText = fpTransform.GetComponent<Text>();
+            }
         }
 
         private static void UpdateSelectorUI(Transform parent) {
@@ -332,8 +360,10 @@ namespace BetterCounterOffer {
             // Success Rate
             if (successRateText == null && !CounterOfferConfig.disableSuccessRate) {
                 successRateText = CreateLabel(offerInfoGO.transform, "SuccessRate", "100% Success Rate", new Vector3(0, startPosition, 0));
+                startPosition -= 35f;
                 labelCount++;
             }
+
         }
 
         public static Text CreateLabel(Transform parent, string title, string text, Vector3 localPosition) {

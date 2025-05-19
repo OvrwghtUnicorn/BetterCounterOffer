@@ -7,8 +7,8 @@
     <Nullable>disable</Nullable>
     <LangVersion>10.0</LangVersion>
     <IsPackable>false</IsPackable>
-    <AssemblyVersion>3.0.0</AssemblyVersion>
-    <FileVersion>3.0.0</FileVersion>
+    <AssemblyVersion>3.2.0</AssemblyVersion>
+    <FileVersion>3.2.0</FileVersion>
     <NeutralLanguage>en-US</NeutralLanguage>
     <AssemblyName>BetterCounterOfferUI-Il2Cpp_$(FileVersion)</AssemblyName>
     <LangVersion>latest</LangVersion>

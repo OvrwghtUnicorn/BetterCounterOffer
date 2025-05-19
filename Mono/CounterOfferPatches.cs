@@ -33,6 +33,10 @@ namespace BetterCounterOffer {
             if (!CounterOfferConfig.disableSuccessRate) {
                 CounterOfferUI.UpdateSuccessRate(__instance);
             }
+
+            if (CounterOfferConfig.enablePricePerUnit) {
+                CounterOfferUI.SetFairPriceText(__instance.price / __instance.quantity);
+            }
         }
     }
 
@@ -66,7 +70,6 @@ namespace BetterCounterOffer {
     static class CounterOfferProductSelectorOpenPatch {
         public static void Postfix(CounterOfferProductSelector __instance) {
             if (CounterOfferUI.selectorInterface == null) {
-                MelonLogger.Msg(System.ConsoleColor.Magenta, "Attempting to caputre ProductSelector interface");
                 CounterOfferUI.selectorInterface = __instance;
             }
         }

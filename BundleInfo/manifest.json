@@ -1,0 +1,9 @@
+{
+	"name": "BetterCounterOfferUI",
+	"version_number": "3.2.0",
+	"description": "Quality of Life improvements to the Counter-offer popup. Only products that are listed get displayed when changing product. The sell price automatically updates when a different product is selected or the quantity is changed.",
+	"website_url" : "https://github.com/OvrwghtUnicorn/BetterCounterOffer",
+	"dependencies": [
+		"LavaGang-MelonLoader-0.7.0"
+	]
+}

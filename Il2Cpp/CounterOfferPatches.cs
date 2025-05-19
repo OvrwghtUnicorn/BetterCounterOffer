@@ -1,9 +1,12 @@
 ﻿using HarmonyLib;
 using MelonLoader;
+using UnityEngine;
 using Il2CppScheduleOne.Product;
 using Il2CppScheduleOne.UI.Phone;
 using Il2Generic = Il2CppSystem.Collections.Generic;
 using Il2CppScheduleOne.Economy;
+using Il2CppScheduleOne.Money;
+using static MelonLoader.MelonLogger;
 
 namespace BetterCounterOffer {
 
@@ -34,6 +37,10 @@ namespace BetterCounterOffer {
             if (!CounterOfferConfig.disableSuccessRate) {
                 CounterOfferUI.UpdateSuccessRate(__instance);
             }
+
+            if (CounterOfferConfig.enablePricePerUnit) {
+                CounterOfferUI.SetFairPriceText(__instance.price / __instance.quantity);
+            }
         }
     }
 
@@ -63,11 +70,19 @@ namespace BetterCounterOffer {
         }
     }
 
+    [HarmonyPatch(typeof(CounterofferInterface), nameof(CounterofferInterface.UpdateFairPrice))]
+    static class CounterofferInterface_UpdateFairPrice_Patch {
+        public static void Postfix(CounterofferInterface __instance) {
+            if (CounterOfferConfig.enablePricePerUnit) {
+                CounterOfferUI.SetFairPriceText(__instance.price);
+            }
+        }
+    }
+
     [HarmonyPatch(typeof(CounterOfferProductSelector), nameof(CounterOfferProductSelector.Open))]
     static class CounterOfferProductSelectorOpenPatch {
         public static void Postfix(CounterOfferProductSelector __instance) {
             if (CounterOfferUI.selectorInterface == null) {
-                MelonLogger.Msg(System.ConsoleColor.Magenta,"Attempting to caputre ProductSelector interface");
                 CounterOfferUI.selectorInterface = __instance;
             }
         }

@@ -11,6 +11,7 @@ namespace BetterCounterOffer {
         public static bool disableSuccessRate = false;
         public static bool disableMaxLimit = false;
         public static bool disableInitialOffer = false;
+        public static bool enablePricePerUnit = false;
 
         public static void LoadConfig() {
             string directoryName = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
@@ -53,6 +54,11 @@ namespace BetterCounterOffer {
                             CounterOfferConfig.disableSuccessRate = value;
                             continue;
                         }
+
+                        if (key == "EnablePricePerUnit") {
+                            CounterOfferConfig.enablePricePerUnit = value;
+                            continue;
+                        }
                     }
                 }
             }
@@ -61,6 +67,7 @@ namespace BetterCounterOffer {
             MelonLogger.Msg(ConsoleColor.Magenta, $"  Disable Initial Offer={CounterOfferConfig.disableInitialOffer}");
             MelonLogger.Msg(ConsoleColor.Magenta, $"  Disable Max Limit={CounterOfferConfig.disableMaxLimit}");
             MelonLogger.Msg(ConsoleColor.Magenta, $"  Disable Success Rate={CounterOfferConfig.disableSuccessRate}");
+            MelonLogger.Msg(ConsoleColor.Magenta, $"  Enable Price Per Unit={CounterOfferConfig.enablePricePerUnit}");
         }
 
         public static void SaveConfig() {
@@ -78,6 +85,7 @@ namespace BetterCounterOffer {
                 "DisableInitialOffer=" + CounterOfferConfig.disableInitialOffer.ToString(),
                 "DisableMaxLimit=" + CounterOfferConfig.disableMaxLimit.ToString(),
                 "DisableSuccessRate=" + CounterOfferConfig.disableSuccessRate.ToString(),
+                "EnablePricePerUnit=" + CounterOfferConfig.enablePricePerUnit.ToString(),
             };
             File.WriteAllLines(path, contents);
         }

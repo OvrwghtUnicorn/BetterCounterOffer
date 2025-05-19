@@ -12,6 +12,7 @@ namespace BetterCounterOffer {
         public static bool disableSuccessRate = false;
         public static bool disableMaxLimit = false;
         public static bool disableInitialOffer = false;
+        public static bool enablePricePerUnit = false;
 
 
         public static void LoadConfig() {
@@ -55,6 +56,11 @@ namespace BetterCounterOffer {
                             CounterOfferConfig.disableSuccessRate = value;
                             continue;
                         }
+
+                        if (key == "EnablePricePerUnit") {
+                            CounterOfferConfig.enablePricePerUnit = value;
+                            continue;
+                        }
                     }
                 }
             }
@@ -68,10 +74,11 @@ namespace BetterCounterOffer {
             defaultInterpolatedStringHandler.AppendFormatted<bool>(CounterOfferConfig.disableMaxLimit);
             defaultInterpolatedStringHandler.AppendLiteral("\n  Disable Success Rate=");
             defaultInterpolatedStringHandler.AppendFormatted<bool>(CounterOfferConfig.disableSuccessRate);
+            defaultInterpolatedStringHandler.AppendLiteral("\n  Enable Price Per Unit=");
+            defaultInterpolatedStringHandler.AppendFormatted<bool>(CounterOfferConfig.enablePricePerUnit);
             MelonLogger.Msg(ConsoleColor.Magenta, defaultInterpolatedStringHandler.ToStringAndClear());
         }
 
-        // Token: 0x06000004 RID: 4 RVA: 0x00002708 File Offset: 0x00000908
         public static void SaveConfig() {
             string directoryName = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
             string text = Path.Combine(directoryName, folderName);
@@ -87,6 +94,7 @@ namespace BetterCounterOffer {
                 "DisableInitialOffer=" + CounterOfferConfig.disableInitialOffer.ToString(),
                 "DisableMaxLimit=" + CounterOfferConfig.disableMaxLimit.ToString(),
                 "DisableSuccessRate=" + CounterOfferConfig.disableSuccessRate.ToString(),
+                "EnablePricePerUnit=" + CounterOfferConfig.enablePricePerUnit.ToString(),
             };
             File.WriteAllLines(path, contents);
         }

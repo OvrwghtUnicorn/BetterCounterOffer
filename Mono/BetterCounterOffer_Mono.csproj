@@ -7,13 +7,13 @@
 		<RootNamespace>Mono</RootNamespace>
 		<LangVersion>default</LangVersion>
 		<IsPackable>false</IsPackable>
-		<AssemblyVersion>3.0.0</AssemblyVersion>
-		<FileVersion>3.0.0</FileVersion>
+		<AssemblyVersion>3.2.0</AssemblyVersion>
+		<FileVersion>3.2.0</FileVersion>
 		<NeutralLanguage>en-US</NeutralLanguage>
 		<AssemblyName>BetterCounterOfferUI-Mono_$(FileVersion)</AssemblyName>
 		<LangVersion>latest</LangVersion>
 		<ImplicitUsings>enable</ImplicitUsings>
-		<GameRootPath>Q:\code\Unity Modding\DepotDownloader-windows-x64\Schedule 1 alternate</GameRootPath>
+		<GameRootPath>Q:\code\UnityModding\DepotDownloader-windows-x64\Schedule 1 alternate</GameRootPath>
 		<GameManagedPath>$(GameRootPath)\Schedule I_Data\Managed\</GameManagedPath>
   	<GameModsPath>$(GameRootPath)\Mods\</GameModsPath>
 	</PropertyGroup>
@@ -25,7 +25,7 @@
 
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
     <Exec Command="COPY &quot;$(TargetPath)&quot; &quot;$(GameModsPath)&quot;" />
-</Target>
+  </Target>
 
   <ItemGroup>
     <Compile Include="CounterOfferUI.cs" />
@@ -74,6 +74,9 @@
     </Reference>
     <Reference Include="Unity.Collections">
       <HintPath>$(GameManagedPath)\Unity.Collections.dll</HintPath>
+    </Reference>
+    <Reference Include="Unity.TextMeshPro">
+      <HintPath>$(GameManagedPath)\Unity.TextMeshPro.dll</HintPath>
     </Reference>
     <Reference Include="MelonLoader">
       <HintPath>$(GameRootPath)\MelonLoader\net35\MelonLoader.dll</HintPath>
