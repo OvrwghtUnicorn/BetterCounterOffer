@@ -1,12 +1,12 @@
 ﻿using HarmonyLib;
 using MelonLoader;
 using UnityEngine;
+using S1Game = Il2CppScheduleOne;
 using Il2CppScheduleOne.Product;
 using Il2CppScheduleOne.UI.Phone;
 using Il2Generic = Il2CppSystem.Collections.Generic;
 using Il2CppScheduleOne.Economy;
 using Il2CppScheduleOne.Money;
-using static MelonLoader.MelonLogger;
 
 namespace BetterCounterOffer {
 
@@ -46,6 +46,33 @@ namespace BetterCounterOffer {
 
     [HarmonyPatch(typeof(CounterofferInterface), nameof(CounterofferInterface.ChangeQuantity))]
     static class CounterOfferInterfaceChangeQuantityPatch {
+
+        public static bool Prefix(CounterofferInterface __instance, ref int change) {
+            if (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift)) {
+                int current = __instance.quantity;
+                int target = current;
+
+                if (change > 0) {
+                    // Increase to the next multiple of 5
+                    target = ((current / 5) + 1) * 5;
+                } else if (change < 0) {
+                    if (current <= 5) {
+                        target = 1;
+                    } else {
+                        // Decrease to the previous multiple of 5
+                        target = ((current - 1) / 5) * 5;
+                    }
+                } else {
+                    return true;
+                }
+
+                // Clamp to 1 - 9999 range
+                target = Math.Max(1, Math.Min(9999, target));
+                change = target - current;
+            }
+
+            return true;
+        }
 
         public static void Postfix(CounterofferInterface __instance) {
             ProductDefinition temp = __instance.selectedProduct;

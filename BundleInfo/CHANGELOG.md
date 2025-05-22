@@ -1,3 +1,6 @@
+# Version 3.3.0
+- Added a hotkey combo. Holding shift while changing quantity will round it to the nearest multiple of 5.
+
 # Version 3.2.0
 - Added the ability to see the price per unit when NPC's send you an offer
 

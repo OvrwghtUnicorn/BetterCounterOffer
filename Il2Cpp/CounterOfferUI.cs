@@ -19,7 +19,7 @@ namespace BetterCounterOffer {
         public const string Description = "A mod that improves the Counter Offer UI";
         public const string Author = "OverweightUnicorn";
         public const string Company = "UnicornsCanMod";
-        public const string Version = "3.2.0";
+        public const string Version = "3.3.0";
         public const string DownloadLink = "";
     }
 

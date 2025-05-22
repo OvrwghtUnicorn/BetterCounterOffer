@@ -7,8 +7,6 @@ using ScheduleOne.Product;
 using ScheduleOne.Economy;
 using ScheduleOne.GameTime;
 using ScheduleOne.UI.Handover;
-using ScheduleOne.Law;
-using ScheduleOne.Property.Utilities.Water;
 
 [assembly: MelonInfo(typeof(BetterCounterOffer.CounterOfferUI), BetterCounterOffer.BuildInfo.Name, BetterCounterOffer.BuildInfo.Version, BetterCounterOffer.BuildInfo.Author, BetterCounterOffer.BuildInfo.DownloadLink)]
 [assembly: MelonColor(255, 191, 0, 255)]
@@ -20,7 +18,7 @@ namespace BetterCounterOffer {
         public const string Description = "A mod that improves the Counter Offer UI";
         public const string Author = "OverweightUnicorn";
         public const string Company = "UnicornsCanMod";
-        public const string Version = "3.2.0";
+        public const string Version = "3.3.0";
         public const string DownloadLink = "";
     }
 
