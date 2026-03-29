@@ -1,29 +1,27 @@
 using MelonLoader;
 using UnityEngine;
 using UnityEngine.UI;
-using Il2Generic = Il2CppSystem.Collections.Generic;
+#if IL2CPP
+using GenericCol = Il2CppSystem.Collections.Generic;
 using Il2CppScheduleOne;
 using Il2CppScheduleOne.UI.Phone;
 using Il2CppScheduleOne.Product;
 using Il2CppScheduleOne.Economy;
 using Il2CppScheduleOne.GameTime;
 using Il2CppScheduleOne.UI.Handover;
-
-[assembly: MelonInfo(typeof(BetterCounterOffer.CounterOfferUI), BetterCounterOffer.BuildInfo.Name, BetterCounterOffer.BuildInfo.Version, BetterCounterOffer.BuildInfo.Author, BetterCounterOffer.BuildInfo.DownloadLink)]
-[assembly: MelonColor(255, 191, 0, 255)]
-[assembly: MelonGame("TVGS", "Schedule I")]
+#elif MONO
+using GenericCol = System.Collections.Generic;
+using ScheduleOne;
+using ScheduleOne.UI.Phone;
+using ScheduleOne.Product;
+using ScheduleOne.Economy;
+using ScheduleOne.GameTime;
+using ScheduleOne.UI.Handover;
+#endif
 
 namespace BetterCounterOffer {
-    public static class BuildInfo {
-        public const string Name = "Better Counter Offer UI";
-        public const string Description = "A mod that improves the Counter Offer UI";
-        public const string Author = "OverweightUnicorn";
-        public const string Company = "UnicornsCanMod";
-        public const string Version = "3.3.0";
-        public const string DownloadLink = "";
-    }
 
-    public class CounterOfferUI : MelonMod {
+    public static class CounterOfferUI {
 
         public static GameObject PlayerRef = null;
         public static GameObject popupRef = null;
@@ -43,7 +41,7 @@ namespace BetterCounterOffer {
         public static string currTab = "Favorites";
         public static float prevTime = 0;
         public static Gradient colorMap = new Gradient();
-        public static Il2Generic.List<ProductDefinition> currList = null;
+        public static GenericCol.List<ProductDefinition> currList = null;
         public static CounterOfferProductSelector selectorInterface = null;
         public static CounterofferInterface offerInterface = null;
 
@@ -143,7 +141,7 @@ namespace BetterCounterOffer {
 
         public static float CalculateSuccessProbability(Customer customer, ProductDefinition product, int quantity, float price) {
             float adjustedWeeklySpend = customer.customerData.GetAdjustedWeeklySpend(customer.NPC.RelationData.RelationDelta / 5f);
-            Il2Generic.List<EDay> orderDays = customer.customerData.GetOrderDays(customer.CurrentAddiction, customer.NPC.RelationData.RelationDelta / 5f);
+            GenericCol.List<EDay> orderDays = customer.customerData.GetOrderDays(customer.CurrentAddiction, customer.NPC.RelationData.RelationDelta / 5f);
             float num = adjustedWeeklySpend / orderDays.Count;
 
             // Immediate rejection based on price threshold
@@ -208,8 +206,10 @@ namespace BetterCounterOffer {
         }
 
         public static void InitOnWake() {
+            Utility.Log("Initializing Counter Offer UI");
             GameObject handOverScreen = GameObject.Find("UI/HandoverScreen");
             if (handOverScreen != null) {
+                Utility.Log("Found Handover Screen....Maybe Could Just search for the component?");
                 HandoverScreen hands = handOverScreen.GetComponent<HandoverScreen>();
                 if (handOverScreen != null) {
                     colorMap = hands.SuccessColorMap;
@@ -218,8 +218,8 @@ namespace BetterCounterOffer {
 
             GameObject playerObject = GameObject.Find("Player_Local");
             if (playerObject != null) {
+                Utility.Log("Found player?");
                 PlayerRef = playerObject;
-
                 Transform transform = PlayerRef.transform.Find("CameraContainer/Camera/OverlayCamera/GameplayMenu/Phone/phone/AppsCanvas/Messages/Container/CounterofferInterface/Shade/Content");
                 GameObject popupContent = transform != null ? transform.gameObject : null;
                 if (popupContent != null) {
@@ -380,23 +380,6 @@ namespace BetterCounterOffer {
             labelRect.sizeDelta = new Vector2(600, 100);
 
             return textLabel;
-        }
-
-
-        public override void OnInitializeMelon() {
-            MelonLogger.Msg(System.ConsoleColor.Magenta, "Initializing Better Counter Offer...Go Make that Money");
-            MelonLogger.Msg(System.ConsoleColor.Magenta, "If you find any bugs,");
-            MelonLogger.Msg(System.ConsoleColor.Magenta, "first check that your game is updated and on the main branch,");
-            MelonLogger.Msg(System.ConsoleColor.Magenta, "Then if the bug persists message me on nexus");
-            MelonLogger.Msg(System.ConsoleColor.Magenta, "- OverweightUnicorn\n");
-            CounterOfferConfig.LoadConfig();
-        }
-
-        public override void OnSceneWasLoaded(int buildIndex, string sceneName) {
-            if(sceneName.ToLower() == "main") {
-                labelCount = 0;
-                selectorTabControl = null;
-            }
         }
     }
 }

@@ -1,23 +1,26 @@
 ﻿using HarmonyLib;
 using MelonLoader;
 using UnityEngine;
-using S1Game = Il2CppScheduleOne;
+#if IL2CPP
 using Il2CppScheduleOne.Product;
 using Il2CppScheduleOne.UI.Phone;
-using Il2Generic = Il2CppSystem.Collections.Generic;
-using Il2CppScheduleOne.Economy;
-using Il2CppScheduleOne.Money;
+using GenericCol = Il2CppSystem.Collections.Generic;
+#elif MONO
+using ScheduleOne.Product;
+using ScheduleOne.UI.Phone;
+using GenericCol = System.Collections.Generic;
+#endif
 
 namespace BetterCounterOffer {
 
-    [HarmonyPatch(typeof(CounterofferInterface), nameof(CounterofferInterface.Awake))]
-    static class CounterOfferAwakePatch {
-        public static bool Prefix(CounterofferInterface __instance) {
-            MelonLogger.Msg("Waking Up, Lets Modify this UI and make it Better");
-            CounterOfferUI.InitOnWake();
-            return true;
-        }
-    }
+    //[HarmonyPatch(typeof(CounterofferInterface), nameof(CounterofferInterface.Awake))]
+    //static class CounterOfferAwakePatch {
+    //    public static bool Prefix(CounterofferInterface __instance) {
+    //        MelonLogger.Msg("Waking Up, Lets Modify this UI and make it Better");
+    //        CounterOfferUI.InitOnWake();
+    //        return true;
+    //    }
+    //}
 
     [HarmonyPatch(typeof(CounterofferInterface), nameof(CounterofferInterface.Open))]
     static class CounterOfferInterfaceOpenPatch {
@@ -118,10 +121,10 @@ namespace BetterCounterOffer {
     [HarmonyPatch(typeof(CounterOfferProductSelector), nameof(CounterOfferProductSelector.GetMatchingProducts))]
     static class CounterOfferProductSelectorGetMatchingProductsPatch {
 
-        public static void Postfix(CounterofferInterface __instance, ref Il2Generic.List<ProductDefinition> __result, ref string searchTerm) {
+        public static void Postfix(CounterofferInterface __instance, ref GenericCol.List<ProductDefinition> __result, ref string searchTerm) {
 
             HashSet<EDrugType> drugTypes = new HashSet<EDrugType>();
-            Il2Generic.List<ProductDefinition> lp;
+            GenericCol.List<ProductDefinition> lp;
             if(CounterOfferUI.currTab == "Listed") {
                 lp = ProductManager.ListedProducts;
             } else if(CounterOfferUI.currTab == "Favorites") {
@@ -129,7 +132,7 @@ namespace BetterCounterOffer {
             } else {
                 lp = ProductManager.DiscoveredProducts;
             }
-                Il2Generic.List<ProductDefinition> newList = new Il2Generic.List<ProductDefinition>();
+                GenericCol.List<ProductDefinition> newList = new GenericCol.List<ProductDefinition>();
             if (searchTerm.ToLower().Contains("weed")) { drugTypes.Add(EDrugType.Marijuana); }
 
             if (searchTerm.ToLower().Contains("coke")) { drugTypes.Add(EDrugType.Cocaine); }
