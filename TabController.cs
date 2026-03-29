@@ -2,30 +2,38 @@
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
 using UnityEngine.Events;
+#if IL2CPP
+using Il2CppInterop.Runtime;
+#endif
 
-namespace BetterCounterOffer {
-
-    public class Tab {
+namespace BetterCounterOffer
+{
+    public class Tab
+    {
         public string id;
         public Button button;
         public Image background;
         public Text buttonText;
 
-        public void SetColor(Color bgColor, Color textColor) {
+        public void SetColor(Color bgColor, Color textColor)
+        {
             SetBgColor(bgColor);
             SetTextColor(textColor);
         }
 
-        public void SetBgColor(Color newColor) {
+        public void SetBgColor(Color newColor)
+        {
             this.background.color = newColor;
         }
 
-        public void SetTextColor(Color newColor) {
+        public void SetTextColor(Color newColor)
+        {
             this.buttonText.color = newColor;
         }
     }
 
-    public class TabController {
+    public class TabController
+    {
         public Dictionary<string, Tab> allTabs = new Dictionary<string, Tab>();
         public Tab selectedTab = null;
 
@@ -43,14 +51,17 @@ namespace BetterCounterOffer {
         public Color tabHover = new Color(0.114f, 0.353f, 0.525f);
         public Color tabActive = new Color(0.204f, 0.522f, 0.737f);
 
-        public TabController(Transform parent) {
+        public TabController(Transform parent)
+        {
             this.parent = parent;
             InitFilterButtons();
         }
 
-        private void InitFilterButtons() {
+        private void InitFilterButtons()
+        {
             filterbuttons = new GameObject("Filter_Buttons");
-            if (this.parent != null) {
+            if (this.parent != null)
+            {
                 filterbuttons.transform.SetParent(this.parent, false);
             }
             filterbuttons.AddComponent<CanvasRenderer>();
@@ -70,20 +81,25 @@ namespace BetterCounterOffer {
             containerGrid.constraintCount = 3;
         }
 
-        public void AddTab(string id, string text) {
-            if (allTabs.ContainsKey(id)) {
+        public void AddTab(string id, string text)
+        {
+            if (allTabs.ContainsKey(id))
+            {
                 throw new Exception($"The key {id} already exists in the tab list");
             }
 
-            if (filterbuttons == null) {
+            if (filterbuttons == null)
+            {
                 throw new Exception("Filter Buttons has not been initialized");
             }
             Tab newTab = CreateNewTab(filterbuttons.transform, id, text);
             allTabs.Add(id, newTab);
         }
 
-        public void SetSelected(string key) {
-            if (!allTabs.ContainsKey(key)) {
+        public void SetSelected(string key)
+        {
+            if (!allTabs.ContainsKey(key))
+            {
                 throw new Exception($"{key} Does Not Exist in the TabController Dictionary");
             }
             Tab selected = allTabs[key];
@@ -91,7 +107,8 @@ namespace BetterCounterOffer {
             selected.SetColor(tabActive, textActive);
         }
 
-        public Tab CreateNewTab(Transform parent, string title, string text) {
+        public Tab CreateNewTab(Transform parent, string title, string text)
+        {
             GameObject buttonGo = new GameObject($"{title}_Button");
             buttonGo.transform.SetParent(parent, false);
             buttonGo.AddComponent<CanvasRenderer>();
@@ -124,15 +141,27 @@ namespace BetterCounterOffer {
 
             EventTrigger.Entry eventEntryEnter = new EventTrigger.Entry();
             eventEntryEnter.eventID = EventTriggerType.PointerEnter;
+#if IL2CPP
+            eventEntryEnter.callback.AddListener(DelegateSupport.ConvertDelegate<UnityAction<BaseEventData>>((BaseEventData eventData) => HandleButtonEnter(newTab)));
+#elif MONO
             eventEntryEnter.callback.AddListener((BaseEventData eventData) => HandleButtonEnter(newTab));
+#endif
 
             EventTrigger.Entry eventEntryExit = new EventTrigger.Entry();
             eventEntryExit.eventID = EventTriggerType.PointerExit;
-            eventEntryExit.callback.AddListener((BaseEventData eventData) => HandleButtonExit(newTab));
+#if IL2CPP
+            eventEntryExit.callback.AddListener(DelegateSupport.ConvertDelegate<UnityAction<BaseEventData>>((BaseEventData eventData) => HandleButtonExit(newTab)));
+#elif MONO
+            eventEntryEnter.callback.AddListener((BaseEventData eventData) => HandleButtonExit(newTab));
+#endif
 
             EventTrigger.Entry eventEntryClick = new EventTrigger.Entry();
             eventEntryClick.eventID = EventTriggerType.PointerClick;
+#if IL2CPP
+            eventEntryClick.callback.AddListener(DelegateSupport.ConvertDelegate<UnityAction<BaseEventData>>((BaseEventData eventData) => HandleButtonClick(newTab)));
+#elif MONO
             eventEntryClick.callback.AddListener((BaseEventData eventData) => HandleButtonClick(newTab));
+#endif
 
             EventTrigger events = buttonGo.AddComponent<EventTrigger>();
             events.triggers.Add(eventEntryEnter);
@@ -143,19 +172,23 @@ namespace BetterCounterOffer {
             return newTab;
         }
 
-        public void HandleButtonEnter(Tab currTab) {
+        public void HandleButtonEnter(Tab currTab)
+        {
             ResetTabs();
             if (selectedTab != null && selectedTab == currTab) return;
             currTab.SetBgColor(tabHover);
         }
 
-        public void HandleButtonExit(Tab currTab) {
+        public void HandleButtonExit(Tab currTab)
+        {
             ResetTabs();
         }
 
-        public void HandleButtonClick(Tab currTab) {
+        public void HandleButtonClick(Tab currTab)
+        {
             float currTime = Time.time;
-            if (currTime - prevTime > clickBuffer) {
+            if (currTime - prevTime > clickBuffer)
+            {
                 CounterOfferUI.TabSelected(currTab);
                 selectedTab = currTab;
                 ResetTabs();
@@ -164,12 +197,13 @@ namespace BetterCounterOffer {
             }
         }
 
-        public void ResetTabs() {
-            foreach (KeyValuePair<string, Tab> tab in allTabs) {
+        public void ResetTabs()
+        {
+            foreach (KeyValuePair<string, Tab> tab in allTabs)
+            {
                 if (selectedTab != null && selectedTab == tab.Value) continue;
                 tab.Value.SetColor(tabIdle, textDisabled);
             }
         }
     }
-
 }

@@ -1,19 +1,18 @@
-<Project Sdk="Microsoft.NET.Sdk">
-
-  <PropertyGroup>
-    <RootNamespace>BetterCounterOffer</RootNamespace>
-    <Nullable>disable</Nullable>
-    <IsPackable>false</IsPackable>
-    <AssemblyVersion>3.3.1</AssemblyVersion>
-    <FileVersion>3.3.1</FileVersion>
-	<LangVersion>default</LangVersion>
-	<IsPackable>false</IsPackable>
-	<NeutralLanguage>en-US</NeutralLanguage>
-	<LangVersion>latest</LangVersion>
-	<ImplicitUsings>enable</ImplicitUsings>
-	<Configurations>MONO;IL2CPP;Temp</Configurations>
-	<ReleaseDir>Q:\code\UnityModding\Schedule_1_Modding\BetterCounterOffer\Il2Cpp\BundleInfo\</ReleaseDir>
-  </PropertyGroup>
+﻿<Project Sdk="Microsoft.NET.Sdk">
+	<PropertyGroup>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>disable</Nullable>
+		<RootNamespace>BetterCounterOffer</RootNamespace>
+		<LangVersion>default</LangVersion>
+		<IsPackable>false</IsPackable>
+		<AssemblyVersion>3.3.1</AssemblyVersion>
+		<FileVersion>3.3.1</FileVersion>
+		<NeutralLanguage>en-US</NeutralLanguage>
+		<LangVersion>latest</LangVersion>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Configurations>MONO;IL2CPP</Configurations>
+		<ReleaseDir>Q:\code\UnityModding\Schedule_1_Modding\BetterCounterOffer\BundleInfo\</ReleaseDir>
+	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)' == 'MONO'">
 		<TargetFramework>netstandard2.1</TargetFramework>
@@ -40,9 +39,9 @@
 
 	<ItemGroup>
 		<Compile Include="Core.cs" />
-		<Compile Include="CounterOfferUI.cs" />
-		<Compile Include="CounterOfferPatches.cs" />
 		<Compile Include="CounterOfferConfig.cs" />
+		<Compile Include="CounterOfferPatches.cs" />
+		<Compile Include="CounterOfferUI.cs" />
 		<Compile Include="TabController.cs" />
 		<Compile Include="TemplateUtils\Utility.cs" />
 	</ItemGroup>
@@ -55,7 +54,7 @@
 		</PackageReference>
 	</ItemGroup>
 
-	<!--Publicizer Entries-->
+  <!--Publicizer Entries-->
 	<ItemGroup Condition="'$(Configuration)' == 'MONO'">
 		<Publicize Include="Assembly-CSharp" />
 		<Publicize Include="ScheduleOne.Core" />
@@ -72,7 +71,7 @@
 		<!-- Copy Mod to Release Folder -->
 		<Exec Command="COPY &quot;$(TargetPath)&quot; &quot;$(ReleaseDir)&quot;&#xD;&#xA;" />
 	</Target>
-
+	
 	<ItemGroup Condition="'$(Configuration)' == 'MONO'">
 		<Reference Include="ScheduleOne.Core">
 			<HintPath>$(S1Dir)\Schedule I_Data\Managed\ScheduleOne.Core.dll</HintPath>

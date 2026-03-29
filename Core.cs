@@ -1,10 +1,12 @@
-﻿using Il2CppScheduleOne.Persistence;
-using MelonLoader;
-using MelonLoader.Utils;
-using UnityEngine;
+﻿using MelonLoader;
 using UnityEngine.Events;
+#if IL2CPP
+using Il2CppScheduleOne.Persistence;
+#elif MONO
+using ScheduleOne.Persistence;
+#endif
 
-[assembly: MelonInfo(typeof(BetterCounterOffer.CounterOfferUI), BetterCounterOffer.BuildInfo.Name, BetterCounterOffer.BuildInfo.Version, BetterCounterOffer.BuildInfo.Author, BetterCounterOffer.BuildInfo.DownloadLink)]
+[assembly: MelonInfo(typeof(BetterCounterOffer.Core), BetterCounterOffer.BuildInfo.Name, BetterCounterOffer.BuildInfo.Version, BetterCounterOffer.BuildInfo.Author, BetterCounterOffer.BuildInfo.DownloadLink)]
 [assembly: MelonColor(255, 191, 0, 255)]
 [assembly: MelonGame("TVGS", "Schedule I")]
 
@@ -41,6 +43,7 @@ namespace BetterCounterOffer
         {
             if (sceneName.ToLower() == "main")
             {
+                Utility.Log("Main");
                 CounterOfferUI.labelCount = 0;
                 CounterOfferUI.selectorTabControl = null;
             }

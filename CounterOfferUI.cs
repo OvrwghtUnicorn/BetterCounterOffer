@@ -1,4 +1,4 @@
-using MelonLoader;
+﻿using MelonLoader;
 using UnityEngine;
 using UnityEngine.UI;
 #if IL2CPP
@@ -19,9 +19,10 @@ using ScheduleOne.GameTime;
 using ScheduleOne.UI.Handover;
 #endif
 
-namespace BetterCounterOffer {
-
-    public static class CounterOfferUI {
+namespace BetterCounterOffer
+{
+    public static class CounterOfferUI
+    {
 
         public static GameObject PlayerRef = null;
         public static GameObject popupRef = null;
@@ -59,32 +60,41 @@ namespace BetterCounterOffer {
             { "Fair price", new Vector2[] { new Vector2(0, -362), new Vector2(0,-370), new Vector2(0, -405), new Vector2(0, -450) } },
         };
 
-        public static void OnPopupOpen(CounterofferInterface instance) {
+        public static void OnPopupOpen(CounterofferInterface instance)
+        {
             Customer currCustomer = instance.conversation.sender.GetComponent<Customer>();
-            if (currCustomer == null) {
+            if (currCustomer == null)
+            {
                 offerInterface.conversation.sender.GetComponent<Customer>();
             }
 
 
             prevTime = 0;
 
-            if (!CounterOfferConfig.disableAllLabels) {
-                if (!CounterOfferConfig.disableInitialOffer) {
-                    if (CounterOfferConfig.enablePricePerUnit) {
+            if (!CounterOfferConfig.disableAllLabels)
+            {
+                if (!CounterOfferConfig.disableInitialOffer)
+                {
+                    if (CounterOfferConfig.enablePricePerUnit)
+                    {
                         SetInitialPriceText(instance.price / instance.quantity, true);
                         SetFairPriceText(instance.price / instance.quantity);
-                    } else {
+                    }
+                    else
+                    {
                         SetInitialPriceText(instance.price);
                     }
-                        
+
                 }
-                
-                if (!CounterOfferConfig.disableMaxLimit) {
+
+                if (!CounterOfferConfig.disableMaxLimit)
+                {
                     float maxSpend = CalculateSpendingLimits(currCustomer);
                     SetMaxCashText(maxSpend);
                 }
-                
-                if (!CounterOfferConfig.disableSuccessRate) {
+
+                if (!CounterOfferConfig.disableSuccessRate)
+                {
                     float successChance = CalculateSuccessProbability(currCustomer, instance.selectedProduct, instance.quantity, instance.price);
                     SetSuccessRateText(successChance);
                 }
@@ -96,8 +106,10 @@ namespace BetterCounterOffer {
 
         }
 
-        public static void SetSuccessRateText(float success) {
-            if (successRateText == null) {
+        public static void SetSuccessRateText(float success)
+        {
+            if (successRateText == null)
+            {
                 MelonLogger.Msg("successRateText is null??");
                 return;
             }
@@ -105,33 +117,41 @@ namespace BetterCounterOffer {
             successRateText.color = colorMap.Evaluate(success);
         }
 
-        public static void SetMaxCashText(float maxSpend) {
-            if (maxCashText == null) {
+        public static void SetMaxCashText(float maxSpend)
+        {
+            if (maxCashText == null)
+            {
                 return;
             }
             maxCashText.text = $"<b>Spend Limit: ${Mathf.RoundToInt(maxSpend)}</b>";
         }
 
-        public static void SetInitialPriceText(float initialPrice, bool ppu = false) {
-            if (initialOfferText == null) {
+        public static void SetInitialPriceText(float initialPrice, bool ppu = false)
+        {
+            if (initialOfferText == null)
+            {
                 return;
             }
-            if (ppu) {
+            if (ppu)
+            {
                 initialOfferText.text = $"<b>Initial Offer: ${Mathf.RoundToInt(initialPrice)} per Unit</b>";
                 return;
             }
             initialOfferText.text = $"<b>Initial Offer: ${Mathf.RoundToInt(initialPrice)}</b>";
         }
 
-        public static void SetFairPriceText(float fairPrice) {
-            if (fairPriceText == null) {
+        public static void SetFairPriceText(float fairPrice)
+        {
+            if (fairPriceText == null)
+            {
                 return;
             }
 
             fairPriceText.text = $"<b>Price: ${Mathf.RoundToInt(fairPrice)} per Unit</b>";
         }
 
-        public static float CalculateSpendingLimits(Customer customer) {
+        public static float CalculateSpendingLimits(Customer customer)
+        {
             CustomerData customerData = customer.CustomerData;
             float adjustedWeeklySpend = customerData.GetAdjustedWeeklySpend(customer.NPC.RelationData.RelationDelta / 5f);
             var orderDays = customerData.GetOrderDays(customer.CurrentAddiction, customer.NPC.RelationData.RelationDelta / 5f);
@@ -139,7 +159,8 @@ namespace BetterCounterOffer {
             return maxSpend;
         }
 
-        public static float CalculateSuccessProbability(Customer customer, ProductDefinition product, int quantity, float price) {
+        public static float CalculateSuccessProbability(Customer customer, ProductDefinition product, int quantity, float price)
+        {
             float adjustedWeeklySpend = customer.customerData.GetAdjustedWeeklySpend(customer.NPC.RelationData.RelationDelta / 5f);
             GenericCol.List<EDay> orderDays = customer.customerData.GetOrderDays(customer.CurrentAddiction, customer.NPC.RelationData.RelationDelta / 5f);
             float num = adjustedWeeklySpend / orderDays.Count;
@@ -189,13 +210,16 @@ namespace BetterCounterOffer {
             return Mathf.Clamp(probability, 0f, 1f);
         }
 
-        public static void UpdateSuccessRate(CounterofferInterface instance) {
-            if (instance == null) {
+        public static void UpdateSuccessRate(CounterofferInterface instance)
+        {
+            if (instance == null)
+            {
                 MelonLogger.Msg(System.ConsoleColor.Red, "CounterofferInterface Instance was Null!!");
                 return;
             }
 
-            if (successRateText == null) {
+            if (successRateText == null)
+            {
                 MelonLogger.Msg(System.ConsoleColor.Red, "successRateText Instance was Null!!");
                 return;
             }
@@ -205,26 +229,32 @@ namespace BetterCounterOffer {
 
         }
 
-        public static void InitOnWake() {
+        public static void InitOnWake()
+        {
             Utility.Log("Initializing Counter Offer UI");
             GameObject handOverScreen = GameObject.Find("UI/HandoverScreen");
-            if (handOverScreen != null) {
+            if (handOverScreen != null)
+            {
                 Utility.Log("Found Handover Screen....Maybe Could Just search for the component?");
                 HandoverScreen hands = handOverScreen.GetComponent<HandoverScreen>();
-                if (handOverScreen != null) {
+                if (handOverScreen != null)
+                {
                     colorMap = hands.SuccessColorMap;
                 }
             }
 
             GameObject playerObject = GameObject.Find("Player_Local");
-            if (playerObject != null) {
+            if (playerObject != null)
+            {
                 Utility.Log("Found player?");
                 PlayerRef = playerObject;
                 Transform transform = PlayerRef.transform.Find("CameraContainer/Camera/OverlayCamera/GameplayMenu/Phone/phone/AppsCanvas/Messages/Container/CounterofferInterface/Shade/Content");
                 GameObject popupContent = transform != null ? transform.gameObject : null;
-                if (popupContent != null) {
+                if (popupContent != null)
+                {
 
-                    if (!CounterOfferConfig.disableAllLabels) {
+                    if (!CounterOfferConfig.disableAllLabels)
+                    {
                         CreateLabels(transform);
                         GrowPopUpWindow(transform);
                         ShiftOfferElements(transform);
@@ -235,8 +265,10 @@ namespace BetterCounterOffer {
             }
         }
 
-        private static void GrowPopUpWindow(Transform transform) {
-            if (transform != null) {
+        private static void GrowPopUpWindow(Transform transform)
+        {
+            if (transform != null)
+            {
                 Vector2 sizeDelta = uiPositions["Shade/Content"][labelCount];
                 // Make pop-up bigger to support the new fields
                 RectTransform CoPopupRect = transform.GetComponent<RectTransform>();
@@ -244,18 +276,23 @@ namespace BetterCounterOffer {
             }
         }
 
-        private static void AdjustUiElements(Transform parent, string searchStr) {
+        private static void AdjustUiElements(Transform parent, string searchStr)
+        {
             Transform fpTransform = parent.Find(searchStr);
-            if (fpTransform != null) {
+            if (fpTransform != null)
+            {
                 Vector2 anchorPos = uiPositions[searchStr][labelCount];
                 RectTransform fpRect = fpTransform.GetComponent<RectTransform>();
                 fpRect.anchoredPosition = anchorPos;
-            } else {
+            }
+            else
+            {
                 MelonLogger.Msg(System.ConsoleColor.Red, $"{searchStr} Couldn't be Found");
             }
         }
 
-        private static void ShiftOfferElements(Transform parent) {
+        private static void ShiftOfferElements(Transform parent)
+        {
             AdjustUiElements(parent, "Price");
             AdjustUiElements(parent, "Subtitle (1)");
             AdjustUiElements(parent, "Product");
@@ -265,9 +302,11 @@ namespace BetterCounterOffer {
             AdjustUiElements(parent, "Selection");
         }
 
-        private static void GetAndShiftFairPrice(Transform parent) {
+        private static void GetAndShiftFairPrice(Transform parent)
+        {
             Transform fpTransform = parent.Find("Fair price");
-            if (fpTransform != null) {
+            if (fpTransform != null)
+            {
                 Vector2 anchorPos = uiPositions["Fair price"][labelCount];
                 RectTransform fpRect = fpTransform.GetComponent<RectTransform>();
                 fpRect.anchoredPosition = anchorPos;
@@ -275,14 +314,17 @@ namespace BetterCounterOffer {
             }
         }
 
-        private static void UpdateSelectorUI(Transform parent) {
+        private static void UpdateSelectorUI(Transform parent)
+        {
             Transform selectorTrans = parent.Find("Selection");
-            if (selectorTrans != null) {
+            if (selectorTrans != null)
+            {
                 MelonLogger.Msg(System.ConsoleColor.Magenta, "The Selector UI now has Tabs....AWESOME");
                 selectorInterface = selectorTrans.GetComponent<CounterOfferProductSelector>();
 
                 Transform searchInputTrans = selectorTrans.Find("SearchInput");
-                if (searchInputTrans != null) {
+                if (searchInputTrans != null)
+                {
                     RectTransform searchInputRect = searchInputTrans.GetComponent<RectTransform>();
                     searchInputRect.anchoredPosition = new Vector2(0, -83);
 
@@ -290,15 +332,17 @@ namespace BetterCounterOffer {
                 }
 
 
-                    Transform windowTrans = selectorTrans.Find("Window");
-                if (windowTrans != null) { 
+                Transform windowTrans = selectorTrans.Find("Window");
+                if (windowTrans != null)
+                {
                     RectTransform windowRect = windowTrans.GetComponent<RectTransform>();
                     windowRect.anchoredPosition = new Vector2(0, -87);
 
                     //GridLayoutGroup windowGlg = windowTrans.GetComponent<GridLayoutGroup>();
                     //windowGlg.cellSize = new Vector2(87, 87);
-                    
-                    if(selectorTabControl == null) {
+
+                    if (selectorTabControl == null)
+                    {
                         selectorTabControl = new TabController(selectorTrans);
                         selectorTabControl.font = gameFont;
                         selectorTabControl.AddTab("Favorites", "<b>Fave</b>");
@@ -311,21 +355,27 @@ namespace BetterCounterOffer {
 
 
 
-            } else {
+            }
+            else
+            {
                 MelonLogger.Msg(System.ConsoleColor.Red, "Selection Couldn't be Found");
             }
         }
 
-        public static void TabSelected(Tab selected) {
+        public static void TabSelected(Tab selected)
+        {
             currTab = selected.id;
-            if (selectorInterface != null) {
+            if (selectorInterface != null)
+            {
                 selectorInterface.RebuildResultsList();
             }
         }
 
-        private static void CreateLabels(Transform parent) {
+        private static void CreateLabels(Transform parent)
+        {
             Transform titleTransform = parent.Find("Title");
-            if (titleTransform != null) {
+            if (titleTransform != null)
+            {
                 gameFont = titleTransform.GetComponent<Text>().font;
             }
 
@@ -343,14 +393,16 @@ namespace BetterCounterOffer {
 
             float startPosition = 40f;
             // Success Rate
-            if (initialOfferText == null && !CounterOfferConfig.disableInitialOffer) {
+            if (initialOfferText == null && !CounterOfferConfig.disableInitialOffer)
+            {
                 initialOfferText = CreateLabel(offerInfoGO.transform, "InitialCash", "Initial Offer Price: ", new Vector3(0, startPosition, 0));
                 startPosition -= 35f;
                 labelCount++;
             }
 
             // Max Cash
-            if (maxCashText == null && !CounterOfferConfig.disableMaxLimit) {
+            if (maxCashText == null && !CounterOfferConfig.disableMaxLimit)
+            {
                 maxCashText = CreateLabel(offerInfoGO.transform, "MaxCash", "$1000 Max", new Vector3(0, startPosition, 0));
                 startPosition -= 35f;
                 labelCount++;
@@ -358,7 +410,8 @@ namespace BetterCounterOffer {
 
 
             // Success Rate
-            if (successRateText == null && !CounterOfferConfig.disableSuccessRate) {
+            if (successRateText == null && !CounterOfferConfig.disableSuccessRate)
+            {
                 successRateText = CreateLabel(offerInfoGO.transform, "SuccessRate", "100% Success Rate", new Vector3(0, startPosition, 0));
                 startPosition -= 35f;
                 labelCount++;
@@ -366,7 +419,8 @@ namespace BetterCounterOffer {
 
         }
 
-        public static Text CreateLabel(Transform parent, string title, string text, Vector3 localPosition) {
+        public static Text CreateLabel(Transform parent, string title, string text, Vector3 localPosition)
+        {
             GameObject labelGo = new GameObject(title);
             labelGo.transform.SetParent(parent, false);
             labelGo.transform.localPosition = localPosition;

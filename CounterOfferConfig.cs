@@ -1,9 +1,10 @@
 ﻿using System.Reflection;
-using System.Runtime.CompilerServices;
 using MelonLoader;
 
-namespace BetterCounterOffer {
-    public static class CounterOfferConfig {
+namespace BetterCounterOffer
+{
+    public static class CounterOfferConfig
+    {
 
         private static string folderName = "CounterOfferUI";
         private static string fileName = "CounterOffer_Config.ini";
@@ -14,76 +15,81 @@ namespace BetterCounterOffer {
         public static bool disableInitialOffer = false;
         public static bool enablePricePerUnit = false;
 
-
-        public static void LoadConfig() {
+        public static void LoadConfig()
+        {
             string directoryName = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
             string text = Path.Combine(directoryName, folderName);
             bool dirExist = Directory.Exists(text);
-            if (!dirExist) {
+            if (!dirExist)
+            {
                 Directory.CreateDirectory(text);
             }
             string path = Path.Combine(text, fileName);
             bool fileExist = File.Exists(path);
-            if (!fileExist) {
+            if (!fileExist)
+            {
                 SaveConfig();
-                MelonLogger.Msg(ConsoleColor.Magenta,"CounterOffer Config file created with default values.");
+                MelonLogger.Msg(ConsoleColor.Magenta, "CounterOffer Config file created with default values.");
             }
             string[] fileLines = File.ReadAllLines(path);
-            foreach (string line in fileLines) {
+            foreach (string line in fileLines)
+            {
                 bool isConfigSetting = !(string.IsNullOrWhiteSpace(line) || line.TrimStart().StartsWith("#"));
-                if (isConfigSetting) {
+                if (isConfigSetting)
+                {
                     var pair = line.Split('=');
                     string key = pair[0].Trim();
                     string rawValue = pair[1].Trim();
                     bool value;
-                    if (Boolean.TryParse(rawValue, out value)) {
-                        if (key == "DisableAllLabels") {
+                    if (Boolean.TryParse(rawValue, out value))
+                    {
+                        if (key == "DisableAllLabels")
+                        {
                             CounterOfferConfig.disableAllLabels = value;
                             continue;
                         }
 
-                        if (key == "DisableInitialOffer") {
+                        if (key == "DisableInitialOffer")
+                        {
                             CounterOfferConfig.disableInitialOffer = value;
                             continue;
                         }
 
-                        if (key == "DisableMaxLimit") {
+                        if (key == "DisableMaxLimit")
+                        {
                             CounterOfferConfig.disableMaxLimit = value;
                             continue;
                         }
 
-                        if (key == "DisableSuccessRate") {
+                        if (key == "DisableSuccessRate")
+                        {
                             CounterOfferConfig.disableSuccessRate = value;
                             continue;
                         }
 
-                        if (key == "EnablePricePerUnit") {
+                        if (key == "EnablePricePerUnit")
+                        {
                             CounterOfferConfig.enablePricePerUnit = value;
                             continue;
                         }
                     }
                 }
             }
-            DefaultInterpolatedStringHandler defaultInterpolatedStringHandler = new DefaultInterpolatedStringHandler(100, 4);
-            defaultInterpolatedStringHandler.AppendLiteral("\nCounterOffer Config loaded:");
-            defaultInterpolatedStringHandler.AppendLiteral("\n  Disable All Labels=");
-            defaultInterpolatedStringHandler.AppendFormatted<bool>(CounterOfferConfig.disableAllLabels);
-            defaultInterpolatedStringHandler.AppendLiteral("\n  Disable Initial Offer=");
-            defaultInterpolatedStringHandler.AppendFormatted<bool>(CounterOfferConfig.disableInitialOffer);
-            defaultInterpolatedStringHandler.AppendLiteral("\n  Disable Max Limit=");
-            defaultInterpolatedStringHandler.AppendFormatted<bool>(CounterOfferConfig.disableMaxLimit);
-            defaultInterpolatedStringHandler.AppendLiteral("\n  Disable Success Rate=");
-            defaultInterpolatedStringHandler.AppendFormatted<bool>(CounterOfferConfig.disableSuccessRate);
-            defaultInterpolatedStringHandler.AppendLiteral("\n  Enable Price Per Unit=");
-            defaultInterpolatedStringHandler.AppendFormatted<bool>(CounterOfferConfig.enablePricePerUnit);
-            MelonLogger.Msg(ConsoleColor.Magenta, defaultInterpolatedStringHandler.ToStringAndClear());
+            MelonLogger.Msg(ConsoleColor.Magenta, "CounterOffer Config loaded:");
+            MelonLogger.Msg(ConsoleColor.Magenta, $"  Disable All Labels={CounterOfferConfig.disableAllLabels}");
+            MelonLogger.Msg(ConsoleColor.Magenta, $"  Disable Initial Offer={CounterOfferConfig.disableInitialOffer}");
+            MelonLogger.Msg(ConsoleColor.Magenta, $"  Disable Max Limit={CounterOfferConfig.disableMaxLimit}");
+            MelonLogger.Msg(ConsoleColor.Magenta, $"  Disable Success Rate={CounterOfferConfig.disableSuccessRate}");
+            MelonLogger.Msg(ConsoleColor.Magenta, $"  Enable Price Per Unit={CounterOfferConfig.enablePricePerUnit}");
         }
 
-        public static void SaveConfig() {
+        public static void SaveConfig()
+        {
             string directoryName = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
             string text = Path.Combine(directoryName, folderName);
             bool flag = !Directory.Exists(text);
-            if (flag) {
+            if (flag)
+            {
                 Directory.CreateDirectory(text);
             }
             string path = Path.Combine(text, fileName);
