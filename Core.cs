@@ -18,7 +18,7 @@ namespace BetterCounterOffer
         public const string Description = "A mod that improves the Counter Offer UI";
         public const string Author = "OverweightUnicorn";
         public const string Company = "UnicornsCanMod";
-        public const string Version = "3.3.1";
+        public const string Version = "3.4.2";
         public const string DownloadLink = "";
     }
 
@@ -31,7 +31,7 @@ namespace BetterCounterOffer
             Utility.Log("first check that your game is updated and on the main branch,");
             Utility.Log("Then if the bug persists message me on nexus");
             Utility.Log("- OverweightUnicorn\n");
-            CounterOfferConfig.LoadConfig();
+            CounterOfferConfig.Initialize();
         }
 
         public override void OnLateInitializeMelon()

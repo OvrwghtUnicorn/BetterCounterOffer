@@ -1,3 +1,15 @@
+# Version 3.4.2
+- Fixed Handover Screen null reference error
+
+# Version 3.4.1
+- Added shrooms to the counter offer selector
+- Fixed a bug with pressing the next button in the selector
+
+# Version 3.4.0
+- Updated to work with v4.4.0 of the game
+- Labels can now be disabled/enabled without reloading the save.
+- Configuration is compatible with [ModsApp by k0Mods](https://thunderstore.io/c/schedule-i/p/k0Mods/ModsApp/)
+
 # Version 3.3.0
 - Added a hotkey combo. Holding shift while changing quantity will round it to the nearest multiple of 5.
 

@@ -63,6 +63,7 @@ namespace BetterCounterOffer
             if (this.parent != null)
             {
                 filterbuttons.transform.SetParent(this.parent, false);
+                filterbuttons.transform.SetSiblingIndex(0);
             }
             filterbuttons.AddComponent<CanvasRenderer>();
             RectTransform containerRectTrans = filterbuttons.AddComponent<RectTransform>();
@@ -152,7 +153,7 @@ namespace BetterCounterOffer
 #if IL2CPP
             eventEntryExit.callback.AddListener(DelegateSupport.ConvertDelegate<UnityAction<BaseEventData>>((BaseEventData eventData) => HandleButtonExit(newTab)));
 #elif MONO
-            eventEntryEnter.callback.AddListener((BaseEventData eventData) => HandleButtonExit(newTab));
+            eventEntryExit.callback.AddListener((BaseEventData eventData) => HandleButtonExit(newTab));
 #endif
 
             EventTrigger.Entry eventEntryClick = new EventTrigger.Entry();

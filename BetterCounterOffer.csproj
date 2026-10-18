@@ -5,8 +5,8 @@
 		<RootNamespace>BetterCounterOffer</RootNamespace>
 		<LangVersion>default</LangVersion>
 		<IsPackable>false</IsPackable>
-		<AssemblyVersion>3.3.1</AssemblyVersion>
-		<FileVersion>3.3.1</FileVersion>
+		<AssemblyVersion>3.4.2</AssemblyVersion>
+		<FileVersion>3.4.2</FileVersion>
 		<NeutralLanguage>en-US</NeutralLanguage>
 		<LangVersion>latest</LangVersion>
 		<ImplicitUsings>enable</ImplicitUsings>

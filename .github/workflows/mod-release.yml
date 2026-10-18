@@ -1,0 +1,216 @@
+name: Mod release (reusable)
+
+# Reusable release pipeline for MelonLoader mods built locally with the csproj.
+# You build the DLLs and attach them to a GitHub release; this downloads them, builds
+# the zips, attaches them, and uploads to Thunderstore and Nexus.
+#
+# Call it from a mod repo (see release.yml). Tags starting with `beta_prefix` are test
+# builds: nothing is done beyond what you attached yourself.
+#
+# Expected DLL names on the release:  <mod>_IL2Cpp_<ver>.dll  and  <mod>_Mono_<ver>.dll
+# where <mod> defaults to the "name" in <bundle_dir>/manifest.json.
+
+on:
+  workflow_call:
+    inputs:
+      tag:
+        description: Release tag being published (e.g. v2.0.0 or beta-2.0.0)
+        type: string
+        required: true
+      mod_name:
+        description: DLL/zip prefix. Defaults to manifest.json "name".
+        type: string
+        default: ''
+      bundle_dir:
+        description: Folder with manifest.json, icon.png, README.md, CHANGELOG.md
+        type: string
+        default: BundleInfo
+      has_il2cpp:
+        type: boolean
+        default: true
+      has_mono:
+        type: boolean
+        default: true
+      beta_prefix:
+        type: string
+        default: beta-
+      display_name:
+        description: Nexus file display name. Defaults to the mod name.
+        type: string
+        default: ''
+      thunderstore_namespace:
+        description: Thunderstore team. Empty skips the Thunderstore upload.
+        type: string
+        default: ''
+      thunderstore_community:
+        type: string
+        default: schedule-i
+      thunderstore_categories:
+        description: Comma separated, e.g. "mods,tools"
+        type: string
+        default: mods
+      nexus_file_group_il2cpp:
+        description: Nexus file group ID. Empty skips that upload.
+        type: string
+        default: ''
+      nexus_file_group_mono:
+        type: string
+        default: ''
+    secrets:
+      THUNDERSTORE_TOKEN:
+        required: false
+      NEXUS_API_KEY:
+        required: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    env:
+      TAG: ${{ inputs.tag }}
+      GH_TOKEN: ${{ github.token }}
+      BUNDLE_DIR: ${{ inputs.bundle_dir }}
+      MOD_NAME_INPUT: ${{ inputs.mod_name }}
+      BETA_PREFIX: ${{ inputs.beta_prefix }}
+      HAS_IL2CPP: ${{ inputs.has_il2cpp }}
+      HAS_MONO: ${{ inputs.has_mono }}
+      NEXUS_API_KEY: ${{ secrets.NEXUS_API_KEY }}
+      THUNDERSTORE_TOKEN: ${{ secrets.THUNDERSTORE_TOKEN }}
+      THUNDERSTORE_NAMESPACE: ${{ inputs.thunderstore_namespace }}
+      THUNDERSTORE_COMMUNITY: ${{ inputs.thunderstore_community }}
+      THUNDERSTORE_CATEGORIES: ${{ inputs.thunderstore_categories }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.tag }}
+
+      - name: Download DLLs and check version
+        id: ver
+        run: |
+          set -euo pipefail
+          shopt -s nullglob
+          manifest="$BUNDLE_DIR/manifest.json"
+          version="${TAG#v}"
+
+          beta=false
+          [[ "$TAG" == "$BETA_PREFIX"* ]] && beta=true
+          if [[ $beta == false ]]; then
+            manifest_version=$(jq -r .version_number "$manifest")
+            if [[ "$manifest_version" != "$version" ]]; then
+              echo "::error::Tag $TAG does not match manifest.json version $manifest_version"
+              exit 1
+            fi
+          fi
+          mod="${MOD_NAME_INPUT:-$(jq -r .name "$manifest")}"
+
+          mkdir -p dist
+          gh release download "$TAG" --pattern '*.dll' --dir dist
+          for rt in IL2Cpp Mono; do
+            has=$HAS_MONO; [[ $rt == IL2Cpp ]] && has=$HAS_IL2CPP
+            [[ $has == true ]] || continue
+            files=(dist/${mod}_${rt}_*.dll)
+            if (( ${#files[@]} == 0 )); then
+              echo "::error::Release is missing ${mod}_${rt}_*.dll"
+              exit 1
+            fi
+          done
+
+          {
+            echo "version=$version"
+            echo "beta=$beta"
+            echo "mod=$mod"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Package and attach zips
+        if: steps.ver.outputs.beta != 'true'
+        env:
+          MOD: ${{ steps.ver.outputs.mod }}
+        run: |
+          set -euo pipefail
+          shopt -s nullglob
+          dlls=()
+          for rt in IL2Cpp Mono; do
+            has=$HAS_MONO; [[ $rt == IL2Cpp ]] && has=$HAS_IL2CPP
+            [[ $has == true ]] || continue
+            files=(dist/${MOD}_${rt}_*.dll)
+            dlls+=("${files[0]}")
+            zip -j -q "dist/${MOD}_${rt}.zip" "${files[0]}"
+          done
+
+          # Thunderstore package: everything in the bundle dir except DLLs, zips and scripts, plus the DLLs.
+          mkdir -p dist/ts
+          find "$BUNDLE_DIR" -maxdepth 1 -type f \
+            ! -name '*.dll' ! -name '*.zip' ! -name '*.bat' ! -name '*.ps1' ! -name '*.sh' \
+            -exec cp {} dist/ts/ \;
+          cp "${dlls[@]}" dist/ts/
+          (cd dist/ts && zip -q -r "../${MOD}_TS.zip" .)
+
+          gh release upload "$TAG" dist/*.zip --clobber
+
+      - name: Publish to Thunderstore
+        if: steps.ver.outputs.beta != 'true' && env.THUNDERSTORE_TOKEN != '' && env.THUNDERSTORE_NAMESPACE != ''
+        env:
+          TCLI_AUTH_TOKEN: ${{ secrets.THUNDERSTORE_TOKEN }}
+          MOD: ${{ steps.ver.outputs.mod }}
+          VERSION: ${{ steps.ver.outputs.version }}
+        run: |
+          set -euo pipefail
+          tcli_version=0.2.4
+          mkdir -p tcli
+          curl -fsSL "https://github.com/thunderstore-io/thunderstore-cli/releases/download/$tcli_version/tcli-$tcli_version-linux-x64.tar.gz" | tar -xz -C tcli
+          tcli=$(find tcli -type f -name tcli | head -n1)
+          chmod +x "$tcli"
+
+          manifest="$BUNDLE_DIR/manifest.json"
+          # "Team-Name-1.2.3" -> "Team-Name" = "1.2.3"
+          deps=$(jq -r '.dependencies[]' "$manifest" | sed -E 's/^(.*)-([^-]+)$/"\1" = "\2"/')
+          cats=$(echo "$THUNDERSTORE_CATEGORIES" | tr ',' '\n' | sed -E 's/^ +| +$//g; s/.*/"&"/' | paste -sd, - | sed 's/,/, /g')
+
+          cat > dist/thunderstore.toml <<TOML
+          [config]
+          schemaVersion = "0.0.1"
+
+          [package]
+          namespace = "$THUNDERSTORE_NAMESPACE"
+          name = $(jq '.name' "$manifest")
+          versionNumber = "$VERSION"
+          description = $(jq '.description' "$manifest")
+          websiteUrl = $(jq '.website_url' "$manifest")
+
+          [package.dependencies]
+          $deps
+
+          [publish]
+          repository = "https://thunderstore.io"
+          communities = ["$THUNDERSTORE_COMMUNITY"]
+
+          [publish.categories]
+          $THUNDERSTORE_COMMUNITY = [$cats]
+          TOML
+
+          "$tcli" publish --config-path dist/thunderstore.toml --file "dist/${MOD}_TS.zip"
+
+      - name: Publish to Nexus (IL2CPP)
+        if: steps.ver.outputs.beta != 'true' && inputs.has_il2cpp && env.NEXUS_API_KEY != '' && inputs.nexus_file_group_il2cpp != ''
+        uses: Nexus-Mods/upload-action@v1
+        with:
+          api_key: ${{ secrets.NEXUS_API_KEY }}
+          file_id: ${{ inputs.nexus_file_group_il2cpp }}
+          filename: dist/${{ steps.ver.outputs.mod }}_IL2Cpp.zip
+          version: ${{ steps.ver.outputs.version }}
+          display_name: ${{ inputs.display_name || steps.ver.outputs.mod }} (IL2CPP)
+          category: main
+          archive_existing_version: true
+          update_mod_version: true
+
+      - name: Publish to Nexus (Mono)
+        if: steps.ver.outputs.beta != 'true' && inputs.has_mono && env.NEXUS_API_KEY != '' && inputs.nexus_file_group_mono != ''
+        uses: Nexus-Mods/upload-action@v1
+        with:
+          api_key: ${{ secrets.NEXUS_API_KEY }}
+          file_id: ${{ inputs.nexus_file_group_mono }}
+          filename: dist/${{ steps.ver.outputs.mod }}_Mono.zip
+          version: ${{ steps.ver.outputs.version }}
+          display_name: ${{ inputs.display_name || steps.ver.outputs.mod }} (Mono)
+          category: main
+          archive_existing_version: true
+          update_mod_version: true

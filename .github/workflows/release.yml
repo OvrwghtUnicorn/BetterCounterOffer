@@ -1,0 +1,29 @@
+name: Publish release
+
+# Build locally, then create the release with the DLLs attached:
+#   stable: gh release create v3.4.2 BundleInfo/*_3.4.2.dll --notes-file notes.md
+#   beta:   gh release create beta-3.4.2 BundleInfo/*_3.4.2.dll --prerelease --target <branch> --notes-file notes.md
+# The pipeline itself lives in mod-release.yml.
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Release tag to publish (e.g. v3.4.2)
+        required: true
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    uses: ./.github/workflows/mod-release.yml
+    secrets: inherit
+    with:
+      tag: ${{ github.event.release.tag_name || inputs.tag }}
+      mod_name: BetterCounterOffer   # DLL prefix; manifest name is BetterCounterOfferUI
+      thunderstore_namespace: ${{ vars.THUNDERSTORE_NAMESPACE }}
+      nexus_file_group_il2cpp: ${{ vars.NEXUS_FILE_GROUP_IL2CPP }}
+      nexus_file_group_mono: ${{ vars.NEXUS_FILE_GROUP_MONO }}
