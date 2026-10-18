@@ -191,7 +191,7 @@ jobs:
 
       - name: Publish to Nexus (IL2CPP)
         if: steps.ver.outputs.beta != 'true' && inputs.has_il2cpp && env.NEXUS_API_KEY != '' && inputs.nexus_file_group_il2cpp != ''
-        uses: Nexus-Mods/upload-action@v1
+        uses: Nexus-Mods/upload-action@v1.0.0-beta.11
         with:
           api_key: ${{ secrets.NEXUS_API_KEY }}
           file_id: ${{ inputs.nexus_file_group_il2cpp }}
@@ -204,7 +204,7 @@ jobs:
 
       - name: Publish to Nexus (Mono)
         if: steps.ver.outputs.beta != 'true' && inputs.has_mono && env.NEXUS_API_KEY != '' && inputs.nexus_file_group_mono != ''
-        uses: Nexus-Mods/upload-action@v1
+        uses: Nexus-Mods/upload-action@v1.0.0-beta.11
         with:
           api_key: ${{ secrets.NEXUS_API_KEY }}
           file_id: ${{ inputs.nexus_file_group_mono }}
